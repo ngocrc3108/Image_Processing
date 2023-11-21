@@ -32,7 +32,7 @@ image_read
 ( 
     .HCLK	                (HCLK    ),
     .HRESETn	            (HRESETn ),
-    .VSYNC	                (vsync   ),
+//    .VSYNC	                (vsync   ),
     .HSYNC	                (hsync   ),
     .DATA_R0	            (data_R0 ),
     .DATA_G0	            (data_G0 ),
