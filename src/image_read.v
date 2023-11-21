@@ -23,9 +23,6 @@ module image_read
     output reg [7:0]  DATA_R0,				// 8 bit Red data (even)
     output reg [7:0]  DATA_G0,				// 8 bit Green data (even)
     output reg [7:0]  DATA_B0,				// 8 bit Blue data (even)
-    output reg [7:0]  DATA_R1,				// 8 bit Red  data (odd)
-    output reg [7:0]  DATA_G1,				// 8 bit Green data (odd)
-    output reg [7:0]  DATA_B1,				// 8 bit Blue data (odd)
 	// Process and transmit 2 pixels in parallel to make the process faster, you can modify to transmit 1 pixels or more if needed
 	output			  ctrl_done					// Done flag
 );			
@@ -175,20 +172,16 @@ begin
 			data_count <= data_count + 1;
     end
 end
-//assign VSYNC = ctrl_vsync_run;
-assign ctrl_done = (data_count == 196607)? 1'b1: 1'b0; // done flag
+
+assign ctrl_done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
 //-------------------------------------------------//
 //-------------  Image processing   ---------------//
 //-------------------------------------------------//
 always @(*) begin
-	
 	HSYNC   = 1'b0;
 	DATA_R0 = 0;
 	DATA_G0 = 0;
-	DATA_B0 = 0;                                       
-	DATA_R1 = 0;
-	DATA_G1 = 0;
-	DATA_B1 = 0;                                         
+	DATA_B0 = 0;                                                                              
 	if(ctrl_data_run) begin
 		
 		HSYNC   = 1'b1;
@@ -203,34 +196,18 @@ always @(*) begin
 			DATA_R0 = 255;
 		else
 			DATA_R0 = org_R[WIDTH * row + col   ] + VALUE;
-		// R1	
-		tempR1 = org_R[WIDTH * row + col+1   ] + VALUE;
-		if (tempR1 > 255)
-			DATA_R1 = 255;
-		else
-			DATA_R1 = org_R[WIDTH * row + col+1   ] + VALUE;	
 		// G0	
 		tempG0 = org_G[WIDTH * row + col   ] + VALUE;
 		if (tempG0 > 255)
 			DATA_G0 = 255;
 		else
-			DATA_G0 = org_G[WIDTH * row + col   ] + VALUE;
-		tempG1 = org_G[WIDTH * row + col+1   ] + VALUE;
-		if (tempG1 > 255)
-			DATA_G1 = 255;
-		else
-			DATA_G1 = org_G[WIDTH * row + col+1   ] + VALUE;		
+			DATA_G0 = org_G[WIDTH * row + col   ] + VALUE;	
 		// B
 		tempB0 = org_B[WIDTH * row + col   ] + VALUE;
 		if (tempB0 > 255)
 			DATA_B0 = 255;
 		else
 			DATA_B0 = org_B[WIDTH * row + col   ] + VALUE;
-		tempB1 = org_B[WIDTH * row + col+1   ] + VALUE;
-		if (tempB1 > 255)
-			DATA_B1 = 255;
-		else
-			DATA_B1 = org_B[WIDTH * row + col+1   ] + VALUE;
 	end
 	else begin
 	/**************************************/		
@@ -281,10 +258,10 @@ always @(*) begin
 			DATA_R0=255-value2;
 			DATA_G0=255-value2;
 			DATA_B0=255-value2;
-			value4 = (org_B[WIDTH * row + col+1  ] + org_R[WIDTH * row + col+1  ] +org_G[WIDTH * row + col+1  ])/3;
-			DATA_R1=255-value4;
-			DATA_G1=255-value4;
-			DATA_B1=255-value4;		
+			// value4 = (org_B[WIDTH * row + col+1  ] + org_R[WIDTH * row + col+1  ] +org_G[WIDTH * row + col+1  ])/3;
+			// DATA_R1=255-value4;
+			// DATA_G1=255-value4;
+			// DATA_B1=255-value4;		
 		`endif
 		/**************************************/		
 		/********THRESHOLD OPERATION  *********/
@@ -302,17 +279,17 @@ always @(*) begin
 			DATA_G0=0;
 			DATA_B0=0;
 		end
-		value1 = (org_R[WIDTH * row + col+1   ]+org_G[WIDTH * row + col+1   ]+org_B[WIDTH * row + col+1   ])/3;
-		if(value1 > THRESHOLD) begin
-			DATA_R1=255;
-			DATA_G1=255;
-			DATA_B1=255;
-		end
-		else begin
-			DATA_R1=0;
-			DATA_G1=0;
-			DATA_B1=0;
-		end		
+		// value1 = (org_R[WIDTH * row + col+1   ]+org_G[WIDTH * row + col+1   ]+org_B[WIDTH * row + col+1   ])/3;
+		// if(value1 > THRESHOLD) begin
+		// 	DATA_R1=255;
+		// 	DATA_G1=255;
+		// 	DATA_B1=255;
+		// end
+		// else begin
+		// 	DATA_R1=0;
+		// 	DATA_G1=0;
+		// 	DATA_B1=0;
+		// end		
 		`endif
 		
 	end

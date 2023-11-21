@@ -14,14 +14,14 @@ module image_write
     input [7:0]  DATA_WRITE_R0,						// Red 8-bit data (odd)
     input [7:0]  DATA_WRITE_G0,						// Green 8-bit data (odd)
     input [7:0]  DATA_WRITE_B0,						// Blue 8-bit data (odd)
-    input [7:0]  DATA_WRITE_R1,						// Red 8-bit data (even)
-    input [7:0]  DATA_WRITE_G1,						// Green 8-bit data (even)
-    input [7:0]  DATA_WRITE_B1,						// Blue 8-bit data (even)
+    // input [7:0]  DATA_WRITE_R1,						// Red 8-bit data (even)
+    // input [7:0]  DATA_WRITE_G1,						// Green 8-bit data (even)
+    // input [7:0]  DATA_WRITE_B1,						// Blue 8-bit data (even)
 	output 	reg	 Write_Done
 );	
 integer BMP_header [0 : BMP_HEADER_NUM - 1];		// BMP header
 reg [7:0] out_BMP  [0 : WIDTH*HEIGHT*3 - 1];		// Temporary memory for image
-reg [18:0] data_count;									// Counting data
+integer data_count;									// Counting data
 wire done;													// done flag
 // counting variables
 integer i;
@@ -89,9 +89,9 @@ always@(posedge HCLK, negedge HRESETn) begin
             out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+2] <= DATA_WRITE_R0;
             out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+1] <= DATA_WRITE_G0;
             out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m  ] <= DATA_WRITE_B0;
-            out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+5] <= DATA_WRITE_R1;
-            out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+4] <= DATA_WRITE_G1;
-            out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+3] <= DATA_WRITE_B1;
+            // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+5] <= DATA_WRITE_R1;
+            // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+4] <= DATA_WRITE_G1;
+            // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+3] <= DATA_WRITE_B1;
         end
     end
 end
@@ -106,7 +106,7 @@ begin
 			data_count <= data_count + 1; // pixels counting for create done flag
     end
 end
-assign done = (data_count == 196607)? 1'b1: 1'b0; // done flag once all pixels were processed
+assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
 always@(posedge HCLK, negedge HRESETn)
 begin
     if(~HRESETn) begin
@@ -128,14 +128,14 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
             $fwrite(fd, "%c", BMP_header[i][7:0]); // write the header
         end
         
-        for(i=0; i<WIDTH*HEIGHT*3; i=i+6) begin
+        for(i=0; i<WIDTH*HEIGHT*3; i=i+3) begin
 		// write R0B0G0 and R1B1G1 (6 bytes) in a loop
             $fwrite(fd, "%c", out_BMP[i  ][7:0]);
             $fwrite(fd, "%c", out_BMP[i+1][7:0]);
             $fwrite(fd, "%c", out_BMP[i+2][7:0]);
-            $fwrite(fd, "%c", out_BMP[i+3][7:0]);
-            $fwrite(fd, "%c", out_BMP[i+4][7:0]);
-            $fwrite(fd, "%c", out_BMP[i+5][7:0]);
+            // $fwrite(fd, "%c", out_BMP[i+3][7:0]);
+            // $fwrite(fd, "%c", out_BMP[i+4][7:0]);
+            // $fwrite(fd, "%c", out_BMP[i+5][7:0]);
         end
         $fclose(fd);
     end
