@@ -155,7 +155,7 @@ begin
 			if(col == WIDTH - 2) 
 				col <= 0;
 			else 
-				col <= col + 2; // reading 2 pixels in parallel
+				col <= col + 1; // reading 2 pixels in parallel
 		end
 	end
 end

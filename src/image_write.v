@@ -69,7 +69,7 @@ always@(posedge HCLK, negedge HRESETn) begin
         m <= 0;
     end else begin
         if(hsync) begin
-            if(m == WIDTH/2-1) begin
+            if(m == WIDTH-1) begin
                 m <= 0;
                 l <= l + 1; // count to obtain row index of the out_BMP temporary memory to save image data
             end else begin
@@ -86,9 +86,9 @@ always@(posedge HCLK, negedge HRESETn) begin
         end
     end else begin
         if(hsync) begin
-            out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+2] <= DATA_WRITE_R0;
-            out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+1] <= DATA_WRITE_G0;
-            out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m  ] <= DATA_WRITE_B0;
+            out_BMP[WIDTH*3*(HEIGHT-l-1)+3*m+2] <= DATA_WRITE_R0;
+            out_BMP[WIDTH*3*(HEIGHT-l-1)+3*m+1] <= DATA_WRITE_G0;
+            out_BMP[WIDTH*3*(HEIGHT-l-1)+3*m  ] <= DATA_WRITE_B0;
             // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+5] <= DATA_WRITE_R1;
             // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+4] <= DATA_WRITE_G1;
             // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+3] <= DATA_WRITE_B1;
@@ -128,14 +128,14 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
             $fwrite(fd, "%c", BMP_header[i][7:0]); // write the header
         end
         
-        for(i=0; i<WIDTH*HEIGHT*3; i=i+3) begin
+        for(i=0; i<WIDTH*HEIGHT*3; i=i+6) begin
 		// write R0B0G0 and R1B1G1 (6 bytes) in a loop
             $fwrite(fd, "%c", out_BMP[i  ][7:0]);
             $fwrite(fd, "%c", out_BMP[i+1][7:0]);
             $fwrite(fd, "%c", out_BMP[i+2][7:0]);
-            // $fwrite(fd, "%c", out_BMP[i+3][7:0]);
-            // $fwrite(fd, "%c", out_BMP[i+4][7:0]);
-            // $fwrite(fd, "%c", out_BMP[i+5][7:0]);
+            $fwrite(fd, "%c", out_BMP[i+3][7:0]);
+            $fwrite(fd, "%c", out_BMP[i+4][7:0]);
+            $fwrite(fd, "%c", out_BMP[i+5][7:0]);
         end
         $fclose(fd);
     end
