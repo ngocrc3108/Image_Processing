@@ -8,8 +8,6 @@ module image_read
   parameter WIDTH 	= 768, 					// Image width
 			HEIGHT 	= 512, 						// Image height
 			INFILE  = "kodim23.hex", 	// image file
-//			START_UP_DELAY = 100, 				// Delay during start up time
-//			HSYNC_DELAY = 160,					// Delay between HSYNC pulses	
 			VALUE= 100,								// value for Brightness operation
 			THRESHOLD= 90,							// Threshold value for Threshold operation
 			SIGN=0									// Sign value using for brightness operation
@@ -19,9 +17,6 @@ module image_read
 (
 	input HCLK,										// clock					
 	input HRESETn,									// Reset (active low)
-//	output VSYNC,								// Vertical synchronous pulse
-	// This signal is often a way to indicate that one entire image is transmitted.
-	// Just create and is not used, will be used once a video or many images are transmitted.
 	output reg HSYNC,								// Horizontal synchronous pulse
 	// An HSYNC indicates that one line of the image is transmitted.
 	// Used to be a horizontal synchronous signals for writing bmp file.
@@ -42,17 +37,12 @@ localparam sizeOfWidth = 8;						// data width
 localparam sizeOfLengthReal = 1179648; 		// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
 localparam		ST_IDLE 	= 2'b00,		// idle state
-//				ST_VSYNC	= 2'b01,			// state for creating vsync 
 				ST_HSYNC	= 2'b10,			// state for creating hsync 
 				ST_DATA		= 2'b11;		// state for data processing 
 reg [1:0] cstate, 						// current state
 		  nstate;							// next state			
 reg start;									// start signal: trigger Finite state machine beginning to operate
 reg HRESETn_d;								// delayed reset signal: use to create start signal
-//reg 		ctrl_vsync_run; 				// control signal for vsync counter  
-//reg [8:0]	ctrl_vsync_cnt;			// counter for vsync
-//reg 		ctrl_hsync_run;				// control signal for hsync counter
-//reg [8:0]	ctrl_hsync_cnt;			// counter  for hsync
 reg 		ctrl_data_run;					// control signal for data processing
 reg [31 : 0]  in_memory    [0 : sizeOfLengthReal/4]; 	// memory to store  32-bit data image
 reg [7 : 0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
@@ -126,7 +116,7 @@ end
 //-----------------------------------------//
 //--------- State Transition --------------//
 //-----------------------------------------//
-// IDLE . VSYNC . HSYNC . DATA
+// IDLE . DATA
 always @(*) begin
 	case(cstate)
 		ST_IDLE: begin
@@ -134,28 +124,12 @@ always @(*) begin
 				nstate = ST_DATA;
 			else
 				nstate = ST_IDLE;
-		end			
-		// ST_VSYNC: begin
-		// 	if(ctrl_vsync_cnt == START_UP_DELAY) 
-		// 		nstate = ST_HSYNC;
-		// 	else
-		// 		nstate = ST_VSYNC;
-		// end
-		// ST_HSYNC: begin
-		// 	if(ctrl_hsync_cnt == HSYNC_DELAY) 
-		// 		nstate = ST_DATA;
-		// 	else
-		// 		nstate = ST_HSYNC;
-		// end		
+		end				
 		ST_DATA: begin
 			if(ctrl_done)
 				nstate = ST_IDLE;
 			else 
 				nstate = ST_DATA;	
-				// if(col == WIDTH - 2)
-				// 	nstate = ST_HSYNC;
-				// else
-				// 	nstate = ST_DATA;
 		end
 	endcase
 end
@@ -163,34 +137,12 @@ end
 // --- counting for time period of vsync, hsync, data processing ----  //
 // ------------------------------------------------------------------- //
 always @(*) begin
-//	ctrl_vsync_run = 0;
-//	ctrl_hsync_run = 0;
 	ctrl_data_run  = 0;
 	case(cstate)
-//		ST_VSYNC: 	begin ctrl_vsync_run = 1; end 	// trigger counting for vsync
-//		ST_HSYNC: 	begin ctrl_hsync_run = 1; end	// trigger counting for hsync
 		ST_DATA: 	begin ctrl_data_run  = 1; end	// trigger counting for data processing
 	endcase
 end
-// counters for vsync, hsync
-always@(posedge HCLK, negedge HRESETn)
-begin
-    if(~HRESETn) begin
-//        ctrl_vsync_cnt <= 0;
-//		ctrl_hsync_cnt <= 0;
-    end
-    else begin
-        // if(ctrl_vsync_run)
-		// 	ctrl_vsync_cnt <= ctrl_vsync_cnt + 1; // counting for vsync
-		// else 
-		// 	ctrl_vsync_cnt <= 0;
-			
-        // if(ctrl_hsync_run)
-		// 	ctrl_hsync_cnt <= ctrl_hsync_cnt + 1;	// counting for hsync		
-		// else
-		// 	ctrl_hsync_cnt <= 0;
-    end
-end
+
 // counting column and row index  for reading memory 
 always@(posedge HCLK, negedge HRESETn)
 begin
@@ -365,5 +317,4 @@ always @(*) begin
 		
 	end
 end
-
 endmodule

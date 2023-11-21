@@ -137,6 +137,7 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
             $fwrite(fd, "%c", out_BMP[i+4][7:0]);
             $fwrite(fd, "%c", out_BMP[i+5][7:0]);
         end
+        $fclose(fd);
     end
 end
 endmodule
