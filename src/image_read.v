@@ -39,8 +39,7 @@ reg start;										// start signal: trigger Finite state machine beginning to o
 reg HRESETn_d;									// delayed reset signal: use to create start signal
 reg 		ctrl_data_run;						// control signal for data processing
 reg [7:0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
-// temporary memory to save image data : size will be WIDTH*HEIGHT*3
-reg [7:0] temp_BMP   [0 : WIDTH*HEIGHT*3 - 1];			
+// temporary memory to save image data : size will be WIDTH*HEIGHT*3		
 reg [7:0] org_R  [0 : WIDTH*HEIGHT - 1]; 			// temporary storage for R component
 reg [7:0] org_G  [0 : WIDTH*HEIGHT - 1];			// temporary storage for G component
 reg [7:0] org_B  [0 : WIDTH*HEIGHT - 1];			// temporary storage for B component
@@ -62,15 +61,11 @@ end
 // use 3 intermediate signals RGB to save image data
 always@(start) begin
     if(start == 1'b1) begin
-        for(i=0; i<WIDTH*HEIGHT*3 ; i=i+1) begin
-            temp_BMP[i] = total_memory[i+0][7:0]; 
-        end
-        
         for(i=0; i<HEIGHT; i=i+1) begin
             for(j=0; j<WIDTH; j=j+1) begin
-                org_R[WIDTH*i+j] = temp_BMP[WIDTH*3*(HEIGHT-i-1)+3*j+0]; // save Red component
-                org_G[WIDTH*i+j] = temp_BMP[WIDTH*3*(HEIGHT-i-1)+3*j+1];// save Green component
-                org_B[WIDTH*i+j] = temp_BMP[WIDTH*3*(HEIGHT-i-1)+3*j+2];// save Blue component
+                org_R[WIDTH*i+j] = total_memory[WIDTH*3*(HEIGHT-i-1)+3*j+0]; // save Red component
+                org_G[WIDTH*i+j] = total_memory[WIDTH*3*(HEIGHT-i-1)+3*j+1];// save Green component
+                org_B[WIDTH*i+j] = total_memory[WIDTH*3*(HEIGHT-i-1)+3*j+2];// save Blue component
             end
         end
     end
