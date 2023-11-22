@@ -32,19 +32,18 @@ module image_read
 localparam sizeOfLengthReal = WIDTH*HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
 localparam		ST_IDLE 	= 2'b00,			// idle state
-				ST_HSYNC	= 2'b10,			// state for creating hsync 
 				ST_DATA		= 2'b11;			// state for data processing 
 reg [1:0] cstate, 								// current state
 		  nstate;								// next state			
 reg start;										// start signal: trigger Finite state machine beginning to operate
 reg HRESETn_d;									// delayed reset signal: use to create start signal
 reg 		ctrl_data_run;						// control signal for data processing
-reg [7 : 0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
+reg [7:0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
 // temporary memory to save image data : size will be WIDTH*HEIGHT*3
-integer temp_BMP   [0 : WIDTH*HEIGHT*3 - 1];			
-integer org_R  [0 : WIDTH*HEIGHT - 1]; 			// temporary storage for R component
-integer org_G  [0 : WIDTH*HEIGHT - 1];			// temporary storage for G component
-integer org_B  [0 : WIDTH*HEIGHT - 1];			// temporary storage for B component
+reg [7:0] temp_BMP   [0 : WIDTH*HEIGHT*3 - 1];			
+reg [7:0] org_R  [0 : WIDTH*HEIGHT - 1]; 			// temporary storage for R component
+reg [7:0] org_G  [0 : WIDTH*HEIGHT - 1];			// temporary storage for G component
+reg [7:0] org_B  [0 : WIDTH*HEIGHT - 1];			// temporary storage for B component
 // counting variables
 integer i, j;
 // temporary signals for calculation: details in the paper.
@@ -95,9 +94,9 @@ begin
     end
 end
 
-//-----------------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 // Finite state machine for reading RGB888 data from memory and creating hsync and vsync pulses --//
-//-----------------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------------------//
 always@(posedge HCLK, negedge HRESETn)
 begin
     if(~HRESETn) begin
@@ -128,7 +127,7 @@ always @(*) begin
 	endcase
 end
 // ------------------------------------------------------------------- //
-// --- counting for time period of vsync, hsync, data processing ----  //
+// ----------------------- control signal ---------------------------- //
 // ------------------------------------------------------------------- //
 always @(*) begin
 	ctrl_data_run  = 0;
@@ -137,37 +136,25 @@ always @(*) begin
 	endcase
 end
 
-// counting column and row index  for reading memory 
+// counting data, column and row index for reading memory 
 always@(posedge HCLK, negedge HRESETn)
 begin
     if(~HRESETn) begin
+		data_count <= 0;
         row <= 0;
 		col <= 0;
     end
 	else begin
 		if(ctrl_data_run) begin
+			data_count <= data_count + 1;
 			if(col == WIDTH - 1) begin
 				row <= row + 1;
-			end
-			if(col == WIDTH - 1) 
 				col <= 0;
-			else 
+			end
+			else
 				col <= col + 1;
 		end
 	end
-end
-//-------------------------------------------------//
-//----------------Data counting---------- ---------//
-//-------------------------------------------------//
-always@(posedge HCLK, negedge HRESETn)
-begin
-    if(~HRESETn) begin
-        data_count <= 0;
-    end
-    else begin
-        if(ctrl_data_run)
-			data_count <= data_count + 1;
-    end
 end
 
 assign ctrl_done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
@@ -257,7 +244,6 @@ always @(*) begin
 			DATA_B0=0;
 		end	
 		`endif
-		
 	end
 end
 endmodule
