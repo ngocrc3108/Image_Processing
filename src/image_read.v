@@ -30,7 +30,6 @@ module image_read
 // Internal Signals
 //-------------------------------------------------
 
-localparam sizeOfWidth = 8;						// data width
 localparam sizeOfLengthReal = 1179648; 		// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
 localparam		ST_IDLE 	= 2'b00,		// idle state
@@ -41,7 +40,6 @@ reg [1:0] cstate, 						// current state
 reg start;									// start signal: trigger Finite state machine beginning to operate
 reg HRESETn_d;								// delayed reset signal: use to create start signal
 reg 		ctrl_data_run;					// control signal for data processing
-reg [31 : 0]  in_memory    [0 : sizeOfLengthReal/4]; 	// memory to store  32-bit data image
 reg [7 : 0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
 // temporary memory to save image data : size will be WIDTH*HEIGHT*3
 integer temp_BMP   [0 : WIDTH*HEIGHT*3 - 1];			
@@ -136,7 +134,7 @@ end
 always @(*) begin
 	ctrl_data_run  = 0;
 	case(cstate)
-		ST_DATA: 	begin ctrl_data_run  = 1; end	// trigger counting for data processing
+		ST_DATA: ctrl_data_run  = 1; // trigger counting for data processing
 	endcase
 end
 
@@ -149,13 +147,13 @@ begin
     end
 	else begin
 		if(ctrl_data_run) begin
-			if(col == WIDTH - 2) begin
+			if(col == WIDTH - 1) begin
 				row <= row + 1;
 			end
-			if(col == WIDTH - 2) 
+			if(col == WIDTH - 1) 
 				col <= 0;
 			else 
-				col <= col + 1; // reading 2 pixels in parallel
+				col <= col + 1;
 		end
 	end
 end
@@ -218,35 +216,19 @@ always @(*) begin
 		if (tempR0 < 0)
 			DATA_R0 = 0;
 		else
-			DATA_R0 = org_R[WIDTH * row + col   ] - VALUE;
-		// R1	
-		tempR1 = org_R[WIDTH * row + col+1   ] - VALUE;
-		if (tempR1 < 0)
-			DATA_R1 = 0;
-		else
-			DATA_R1 = org_R[WIDTH * row + col+1   ] - VALUE;	
+			DATA_R0 = org_R[WIDTH * row + col   ] - VALUE;	
 		// G0	
 		tempG0 = org_G[WIDTH * row + col   ] - VALUE;
 		if (tempG0 < 0)
 			DATA_G0 = 0;
 		else
-			DATA_G0 = org_G[WIDTH * row + col   ] - VALUE;
-		tempG1 = org_G[WIDTH * row + col+1   ] - VALUE;
-		if (tempG1 < 0)
-			DATA_G1 = 0;
-		else
-			DATA_G1 = org_G[WIDTH * row + col+1   ] - VALUE;		
-		// B
+			DATA_G0 = org_G[WIDTH * row + col   ] - VALUE;		
+		// B0
 		tempB0 = org_B[WIDTH * row + col   ] - VALUE;
 		if (tempB0 < 0)
 			DATA_B0 = 0;
 		else
 			DATA_B0 = org_B[WIDTH * row + col   ] - VALUE;
-		tempB1 = org_B[WIDTH * row + col+1   ] - VALUE;
-		if (tempB1 < 0)
-			DATA_B1 = 0;
-		else
-			DATA_B1 = org_B[WIDTH * row + col+1   ] - VALUE;
 	 end
 		`endif
 	
@@ -254,21 +236,17 @@ always @(*) begin
 		/*		INVERT_OPERATION  			  */
 		/**************************************/
 		`ifdef INVERT_OPERATION	
-			value2 = (org_B[WIDTH * row + col  ] + org_R[WIDTH * row + col  ] +org_G[WIDTH * row + col  ])/3;
-			DATA_R0=255-value2;
-			DATA_G0=255-value2;
-			DATA_B0=255-value2;
-			// value4 = (org_B[WIDTH * row + col+1  ] + org_R[WIDTH * row + col+1  ] +org_G[WIDTH * row + col+1  ])/3;
-			// DATA_R1=255-value4;
-			// DATA_G1=255-value4;
-			// DATA_B1=255-value4;		
+			value2 = (org_B[WIDTH * row + col] + org_R[WIDTH * row + col] + org_G[WIDTH * row + col]) / 3;
+			DATA_R0= 255 - value2;
+			DATA_G0= 255 - value2;
+			DATA_B0= 255 - value2;	
 		`endif
 		/**************************************/		
 		/********THRESHOLD OPERATION  *********/
 		/**************************************/
 		`ifdef THRESHOLD_OPERATION
 
-		value = (org_R[WIDTH * row + col   ]+org_G[WIDTH * row + col   ]+org_B[WIDTH * row + col   ])/3;
+		value = (org_R[WIDTH * row + col   ] + org_G[WIDTH * row + col   ] + org_B[WIDTH * row + col   ]) / 3;
 		if(value > THRESHOLD) begin
 			DATA_R0=255;
 			DATA_G0=255;
@@ -278,18 +256,7 @@ always @(*) begin
 			DATA_R0=0;
 			DATA_G0=0;
 			DATA_B0=0;
-		end
-		// value1 = (org_R[WIDTH * row + col+1   ]+org_G[WIDTH * row + col+1   ]+org_B[WIDTH * row + col+1   ])/3;
-		// if(value1 > THRESHOLD) begin
-		// 	DATA_R1=255;
-		// 	DATA_G1=255;
-		// 	DATA_B1=255;
-		// end
-		// else begin
-		// 	DATA_R1=0;
-		// 	DATA_G1=0;
-		// 	DATA_B1=0;
-		// end		
+		end	
 		`endif
 		
 	end
