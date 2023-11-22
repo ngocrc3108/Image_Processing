@@ -2,27 +2,24 @@
 /******************     Module for writing .bmp image    		 *************/
 /******************************************************************************/
 module image_write
-#(parameter WIDTH 	= 768,							// Image width
-			HEIGHT 	= 512,								// Image height
-			INFILE  = "output.bmp",						// Output image
-			BMP_HEADER_NUM = 54							// Header for bmp image
+#(parameter WIDTH 	= 768,						// Image width
+			HEIGHT 	= 512,						// Image height
+			INFILE  = "output.bmp",				// Output image
+			BMP_HEADER_NUM = 54					// Header for bmp image
 )
 (
-	input HCLK,												// Clock	
-	input HRESETn,											// Reset active low
-	input hsync,											// Hsync pulse						
-    input [7:0]  DATA_WRITE_R0,						// Red 8-bit data (odd)
-    input [7:0]  DATA_WRITE_G0,						// Green 8-bit data (odd)
-    input [7:0]  DATA_WRITE_B0,						// Blue 8-bit data (odd)
-    // input [7:0]  DATA_WRITE_R1,						// Red 8-bit data (even)
-    // input [7:0]  DATA_WRITE_G1,						// Green 8-bit data (even)
-    // input [7:0]  DATA_WRITE_B1,						// Blue 8-bit data (even)
+	input HCLK,									// Clock	
+	input HRESETn,								// Reset active low
+	input hsync,								// Hsync pulse						
+    input [7:0]  DATA_WRITE_R0,					// Red 8-bit data (odd)
+    input [7:0]  DATA_WRITE_G0,					// Green 8-bit data (odd)
+    input [7:0]  DATA_WRITE_B0,					// Blue 8-bit data (odd)
 	output 	reg	 Write_Done
 );	
-integer BMP_header [0 : BMP_HEADER_NUM - 1];		// BMP header
-reg [7:0] out_BMP  [0 : WIDTH*HEIGHT*3 - 1];		// Temporary memory for image
-integer data_count;									// Counting data
-wire done;													// done flag
+integer BMP_header [0 : BMP_HEADER_NUM - 1];	// BMP header
+reg [7:0] out_BMP  [0 : WIDTH*HEIGHT*3 - 1];	// Temporary memory for image
+integer data_count;								// Counting data
+wire done;										// done flag
 // counting variables
 integer i;
 integer k, l, m;
@@ -89,9 +86,6 @@ always@(posedge HCLK, negedge HRESETn) begin
             out_BMP[WIDTH*3*(HEIGHT-l-1)+3*m+2] <= DATA_WRITE_R0;
             out_BMP[WIDTH*3*(HEIGHT-l-1)+3*m+1] <= DATA_WRITE_G0;
             out_BMP[WIDTH*3*(HEIGHT-l-1)+3*m  ] <= DATA_WRITE_B0;
-            // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+5] <= DATA_WRITE_R1;
-            // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+4] <= DATA_WRITE_G1;
-            // out_BMP[WIDTH*3*(HEIGHT-l-1)+6*m+3] <= DATA_WRITE_B1;
         end
     end
 end

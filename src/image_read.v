@@ -1,28 +1,27 @@
-// By FPGA4student.com
 /******************************************************************************/
 /******************  Module for reading and processing image     **************/
 /******************************************************************************/
 `include "parameter.v" 						// Include definition file
 module image_read
 #(
-  parameter WIDTH 	= 768, 					// Image width
+  parameter WIDTH 	= 768, 						// Image width
 			HEIGHT 	= 512, 						// Image height
-			INFILE  = "kodim23.hex", 	// image file
-			VALUE= 100,								// value for Brightness operation
-			THRESHOLD= 90,							// Threshold value for Threshold operation
-			SIGN=0									// Sign value using for brightness operation
-														// SIGN = 0: Brightness subtraction
-														// SIGN = 1: Brightness addition
+			INFILE  = "kodim23.hex", 			// image file
+			VALUE= 100,							// value for Brightness operation
+			THRESHOLD= 90,						// Threshold value for Threshold operation
+			SIGN=0								// Sign value using for brightness operation
+													// SIGN = 0: Brightness subtraction
+													// SIGN = 1: Brightness addition
 )
 (
-	input HCLK,										// clock					
-	input HRESETn,									// Reset (active low)
-	output reg HSYNC,								// Horizontal synchronous pulse
+	input HCLK,									// clock					
+	input HRESETn,								// Reset (active low)
+	output reg HSYNC,							// Horizontal synchronous pulse
 	// An HSYNC indicates that one line of the image is transmitted.
 	// Used to be a horizontal synchronous signals for writing bmp file.
-    output reg [7:0]  DATA_R0,				// 8 bit Red data (even)
-    output reg [7:0]  DATA_G0,				// 8 bit Green data (even)
-    output reg [7:0]  DATA_B0,				// 8 bit Blue data (even)
+    output reg [7:0]  DATA_R0,					// 8 bit Red data (even)
+    output reg [7:0]  DATA_G0,					// 8 bit Green data (even)
+    output reg [7:0]  DATA_B0,					// 8 bit Blue data (even)
 	// Process and transmit 2 pixels in parallel to make the process faster, you can modify to transmit 1 pixels or more if needed
 	output			  ctrl_done					// Done flag
 );			
@@ -30,31 +29,31 @@ module image_read
 // Internal Signals
 //-------------------------------------------------
 
-localparam sizeOfLengthReal = 1179648; 		// image data : 1179648 bytes: 512 * 768 *3 
+localparam sizeOfLengthReal = WIDTH*HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
-localparam		ST_IDLE 	= 2'b00,		// idle state
+localparam		ST_IDLE 	= 2'b00,			// idle state
 				ST_HSYNC	= 2'b10,			// state for creating hsync 
-				ST_DATA		= 2'b11;		// state for data processing 
-reg [1:0] cstate, 						// current state
-		  nstate;							// next state			
-reg start;									// start signal: trigger Finite state machine beginning to operate
-reg HRESETn_d;								// delayed reset signal: use to create start signal
-reg 		ctrl_data_run;					// control signal for data processing
+				ST_DATA		= 2'b11;			// state for data processing 
+reg [1:0] cstate, 								// current state
+		  nstate;								// next state			
+reg start;										// start signal: trigger Finite state machine beginning to operate
+reg HRESETn_d;									// delayed reset signal: use to create start signal
+reg 		ctrl_data_run;						// control signal for data processing
 reg [7 : 0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
 // temporary memory to save image data : size will be WIDTH*HEIGHT*3
 integer temp_BMP   [0 : WIDTH*HEIGHT*3 - 1];			
-integer org_R  [0 : WIDTH*HEIGHT - 1]; 	// temporary storage for R component
-integer org_G  [0 : WIDTH*HEIGHT - 1];	// temporary storage for G component
-integer org_B  [0 : WIDTH*HEIGHT - 1];	// temporary storage for B component
+integer org_R  [0 : WIDTH*HEIGHT - 1]; 			// temporary storage for R component
+integer org_G  [0 : WIDTH*HEIGHT - 1];			// temporary storage for G component
+integer org_B  [0 : WIDTH*HEIGHT - 1];			// temporary storage for B component
 // counting variables
 integer i, j;
 // temporary signals for calculation: details in the paper.
-integer tempR0,tempR1,tempG0,tempG1,tempB0,tempB1; // temporary variables in contrast and brightness operation
+integer tempR0,tempG0,tempB0; 					// temporary variables in contrast and brightness operation
 
-integer value,value1,value2,value4;// temporary variables in invert and threshold operation
-reg [ 9:0] row; // row index of the image
-reg [10:0] col; // column index of the image
-reg [18:0] data_count; // data counting for entire pixels of the image
+integer value,value2;							// temporary variables in invert and threshold operation
+reg [ 9:0] row; 								// row index of the image
+reg [10:0] col; 								// column index of the image
+reg [18:0] data_count; 							// data counting for entire pixels of the image
 //-------------------------------------------------//
 // -------- Reading data from input file ----------//
 //-------------------------------------------------//
@@ -87,8 +86,8 @@ begin
         start <= 0;
 		HRESETn_d <= 0;
     end
-    else begin											//        		______ 				
-        HRESETn_d <= HRESETn;							//       	|		|
+    else begin											//        ______		 				
+        HRESETn_d <= HRESETn;							//       |		|
 		if(HRESETn == 1'b1 && HRESETn_d == 1'b0)		// __0___|	1	|___0____	: starting pulse
 			start <= 1'b1;
 		else
