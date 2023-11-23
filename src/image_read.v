@@ -6,10 +6,10 @@ module image_read
 #(
   parameter WIDTH 	= 768, 						// Image width
 			HEIGHT 	= 512, 						// Image height
-			INFILE  = "kodim23.hex", 			// image file
+			INFILE  = "input.hex", 			// image file
 			VALUE= 100,							// value for Brightness operation
 			THRESHOLD= 90,						// Threshold value for Threshold operation
-			SIGN=0								// Sign value using for brightness operation
+			SIGN=1								// Sign value using for brightness operation
 													// SIGN = 0: Brightness subtraction
 													// SIGN = 1: Brightness addition
 )
@@ -214,30 +214,13 @@ always @(*) begin
 		`endif
 	
 		/**************************************/		
-		/*		INVERT_OPERATION  			  */
+		/*		GRAYSCALE_OPERATION 		  */
 		/**************************************/
-		`ifdef INVERT_OPERATION	
+		`ifdef GRAYSCALE_OPERATION	
 			value2 = (org_B[WIDTH * row + col] + org_R[WIDTH * row + col] + org_G[WIDTH * row + col]) / 3;
-			DATA_R0= 255 - value2;
-			DATA_G0= 255 - value2;
-			DATA_B0= 255 - value2;	
-		`endif
-		/**************************************/		
-		/********THRESHOLD OPERATION  *********/
-		/**************************************/
-		`ifdef THRESHOLD_OPERATION
-
-		value = (org_R[WIDTH * row + col   ] + org_G[WIDTH * row + col   ] + org_B[WIDTH * row + col   ]) / 3;
-		if(value > THRESHOLD) begin
-			DATA_R0=255;
-			DATA_G0=255;
-			DATA_B0=255;
-		end
-		else begin
-			DATA_R0=0;
-			DATA_G0=0;
-			DATA_B0=0;
-		end	
+			DATA_R0 = value2;
+			DATA_G0 = value2;
+			DATA_B0 = value2;	
 		`endif
 	end
 end
