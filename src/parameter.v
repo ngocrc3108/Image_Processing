@@ -1,7 +1,6 @@
 /*************************** **********************************************/
 /*************************** Definition file ******************************/
 /*************************** **********************************************/
-// By FPGA4student.com
 `define INPUTFILENAME		 "./images/input.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
 

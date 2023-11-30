@@ -19,9 +19,9 @@ module image_read
 	output reg HSYNC,							// Horizontal synchronous pulse
 	// An HSYNC indicates that one line of the image is transmitted.
 	// Used to be a horizontal synchronous signals for writing bmp file.
-    output reg [7:0]  DATA_R0,					// 8 bit Red data (even)
-    output reg [7:0]  DATA_G0,					// 8 bit Green data (even)
-    output reg [7:0]  DATA_B0,					// 8 bit Blue data (even)
+    output reg [7:0]  DATA_R,					// 8 bit Red data (even)
+    output reg [7:0]  DATA_G,					// 8 bit Green data (even)
+    output reg [7:0]  DATA_B,					// 8 bit Blue data (even)
 	// Process and transmit 2 pixels in parallel to make the process faster, you can modify to transmit 1 pixels or more if needed
 	output			  ctrl_done					// Done flag
 );			
@@ -46,7 +46,7 @@ reg [7:0] org_B  [0 : WIDTH*HEIGHT - 1];			// temporary storage for B component
 // counting variables
 integer i, j;
 // temporary signals for calculation: details in the paper.
-integer tempR0,tempG0,tempB0; 					// temporary variables in contrast and brightness operation
+integer tempR,tempG,tempB; 					// temporary variables in contrast and brightness operation
 
 integer value,value2;							// temporary variables in invert and threshold operation
 reg [ 9:0] row; 								// row index of the image
@@ -158,9 +158,9 @@ assign ctrl_done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
 //-------------------------------------------------//
 always @(*) begin
 	HSYNC   = 1'b0;
-	DATA_R0 = 0;
-	DATA_G0 = 0;
-	DATA_B0 = 0;                                                                              
+	DATA_R = 0;
+	DATA_G = 0;
+	DATA_B = 0;                                                                              
 	if(ctrl_data_run) begin
 		
 		HSYNC   = 1'b1;
@@ -170,46 +170,46 @@ always @(*) begin
 		/**************************************/
 		if(SIGN == 1) begin
 		// R0
-		tempR0 = org_R[WIDTH * row + col   ] + VALUE;
-		if (tempR0 > 255)
-			DATA_R0 = 255;
+		tempR = org_R[WIDTH * row + col   ] + VALUE;
+		if (tempR > 255)
+			DATA_R = 255;
 		else
-			DATA_R0 = org_R[WIDTH * row + col   ] + VALUE;
+			DATA_R = org_R[WIDTH * row + col   ] + VALUE;
 		// G0	
-		tempG0 = org_G[WIDTH * row + col   ] + VALUE;
-		if (tempG0 > 255)
-			DATA_G0 = 255;
+		tempG = org_G[WIDTH * row + col   ] + VALUE;
+		if (tempG > 255)
+			DATA_G = 255;
 		else
-			DATA_G0 = org_G[WIDTH * row + col   ] + VALUE;	
+			DATA_G = org_G[WIDTH * row + col   ] + VALUE;	
 		// B
-		tempB0 = org_B[WIDTH * row + col   ] + VALUE;
-		if (tempB0 > 255)
-			DATA_B0 = 255;
+		tempB = org_B[WIDTH * row + col   ] + VALUE;
+		if (tempB > 255)
+			DATA_B = 255;
 		else
-			DATA_B0 = org_B[WIDTH * row + col   ] + VALUE;
+			DATA_B = org_B[WIDTH * row + col   ] + VALUE;
 	end
 	else begin
 	/**************************************/		
 	/*	BRIGHTNESS SUBTRACTION OPERATION */
 	/**************************************/
 		// R0
-		tempR0 = org_R[WIDTH * row + col   ] - VALUE;
-		if (tempR0 < 0)
-			DATA_R0 = 0;
+		tempR = org_R[WIDTH * row + col   ] - VALUE;
+		if (tempR < 0)
+			DATA_R = 0;
 		else
-			DATA_R0 = org_R[WIDTH * row + col   ] - VALUE;	
+			DATA_R = org_R[WIDTH * row + col   ] - VALUE;	
 		// G0	
-		tempG0 = org_G[WIDTH * row + col   ] - VALUE;
-		if (tempG0 < 0)
-			DATA_G0 = 0;
+		tempG = org_G[WIDTH * row + col   ] - VALUE;
+		if (tempG < 0)
+			DATA_G = 0;
 		else
-			DATA_G0 = org_G[WIDTH * row + col   ] - VALUE;		
+			DATA_G = org_G[WIDTH * row + col   ] - VALUE;		
 		// B0
-		tempB0 = org_B[WIDTH * row + col   ] - VALUE;
-		if (tempB0 < 0)
-			DATA_B0 = 0;
+		tempB = org_B[WIDTH * row + col   ] - VALUE;
+		if (tempB < 0)
+			DATA_B = 0;
 		else
-			DATA_B0 = org_B[WIDTH * row + col   ] - VALUE;
+			DATA_B = org_B[WIDTH * row + col   ] - VALUE;
 	 end
 		`endif
 	
@@ -218,9 +218,9 @@ always @(*) begin
 		/**************************************/
 		`ifdef GRAYSCALE_OPERATION	
 			value2 = (org_B[WIDTH * row + col] + org_R[WIDTH * row + col] + org_G[WIDTH * row + col]) / 3;
-			DATA_R0 = value2;
-			DATA_G0 = value2;
-			DATA_B0 = value2;	
+			DATA_R = value2;
+			DATA_G = value2;
+			DATA_B = value2;	
 		`endif
 	end
 end

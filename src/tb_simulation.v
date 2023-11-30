@@ -2,7 +2,6 @@
 /**************************************************************************/
 /******************** Testbench for simulation ****************************/
 /**************************************************************************/
-// By FPGA4student.com
 `include "parameter.v"				// include definition file
 
 module tb_simulation;
@@ -14,9 +13,9 @@ module tb_simulation;
 reg HCLK, HRESETn;
 wire          vsync;
 wire          hsync;
-wire [ 7 : 0] data_R0;
-wire [ 7 : 0] data_G0;
-wire [ 7 : 0] data_B0;
+wire [ 7 : 0] data_R;
+wire [ 7 : 0] data_G;
+wire [ 7 : 0] data_B;
 wire enc_done;
 
 //-------------------------------------------------
@@ -30,9 +29,9 @@ image_read
     .HCLK	                (HCLK    ),
     .HRESETn	            (HRESETn ),
     .HSYNC	                (hsync   ),
-    .DATA_R0	            (data_R0 ),
-    .DATA_G0	            (data_G0 ),
-    .DATA_B0	            (data_B0 ),
+    .DATA_R	            (data_R ),
+    .DATA_G	            (data_G ),
+    .DATA_B	            (data_B ),
 	.ctrl_done				(enc_done)
 ); 
 
@@ -43,9 +42,9 @@ image_write
 	.HCLK(HCLK),
 	.HRESETn(HRESETn),
 	.hsync(hsync),
-   .DATA_WRITE_R0(data_R0),
-   .DATA_WRITE_G0(data_G0),
-   .DATA_WRITE_B0(data_B0),
+   .DATA_WRITE_R(data_R),
+   .DATA_WRITE_G(data_G),
+   .DATA_WRITE_B(data_B),
 	.Write_Done()
 );	
 

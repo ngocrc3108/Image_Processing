@@ -11,9 +11,9 @@ module image_write
 	input HCLK,									// Clock	
 	input HRESETn,								// Reset active low
 	input hsync,								// Hsync pulse						
-    input [7:0]  DATA_WRITE_R0,					// Red 8-bit data (odd)
-    input [7:0]  DATA_WRITE_G0,					// Green 8-bit data (odd)
-    input [7:0]  DATA_WRITE_B0,					// Blue 8-bit data (odd)
+    input [7:0]  DATA_WRITE_R,					// Red 8-bit data (odd)
+    input [7:0]  DATA_WRITE_G,					// Green 8-bit data (odd)
+    input [7:0]  DATA_WRITE_B,					// Blue 8-bit data (odd)
 	output 	reg	 Write_Done
 );	
 reg [7:0] BMP_header [0 : BMP_HEADER_NUM - 1];	// BMP header
@@ -83,9 +83,9 @@ always@(posedge HCLK, negedge HRESETn) begin
         end
     end else begin
         if(hsync) begin
-            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+2] <= DATA_WRITE_R0;
-            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+1] <= DATA_WRITE_G0;
-            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col  ] <= DATA_WRITE_B0;
+            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+2] <= DATA_WRITE_R;
+            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+1] <= DATA_WRITE_G;
+            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col  ] <= DATA_WRITE_B;
         end
     end
 end
@@ -123,7 +123,7 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
         end
         
         for(i=0; i<WIDTH*HEIGHT*3; i=i+3) begin
-		// write R0B0G0 and R1B1G1 (6 bytes) in a loop
+		// write RBG
             $fwrite(fd, "%c", out_BMP[i  ][7:0]);
             $fwrite(fd, "%c", out_BMP[i+1][7:0]);
             $fwrite(fd, "%c", out_BMP[i+2][7:0]);
