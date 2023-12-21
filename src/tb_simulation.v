@@ -21,12 +21,11 @@ module tb_simulation;
 //-------------------------------------------------
 
 reg HCLK, HRESETn;
-wire          vsync;
 wire          hsync;
 wire [ 7 : 0] data_R;
 wire [ 7 : 0] data_G;
 wire [ 7 : 0] data_B;
-wire enc_done;
+wire File_Closed;
 
 //-------------------------------------------------
 // Components
@@ -36,26 +35,25 @@ image_read
 #(.INFILE(`INPUTFILENAME))
 	u_image_read
 ( 
-    .HCLK	                (HCLK    ),
-    .HRESETn	            (HRESETn ),
-    .HSYNC	                (hsync   ),
+    .HCLK	            (HCLK    ),
+    .HRESETn	        (HRESETn ),
+    .HSYNC	            (hsync   ),
     .DATA_R	            (data_R ),
     .DATA_G	            (data_G ),
-    .DATA_B	            (data_B ),
-	.ctrl_done				(enc_done)
+    .DATA_B	            (data_B )
 ); 
 
 image_write 
 #(.INFILE(`OUTPUTFILENAME))
 	u_image_write
 (
-	.HCLK(HCLK),
-	.HRESETn(HRESETn),
-	.hsync(hsync),
-   .DATA_WRITE_R(data_R),
-   .DATA_WRITE_G(data_G),
-   .DATA_WRITE_B(data_B),
-	.Write_Done()
+    .HCLK(HCLK),
+    .HRESETn(HRESETn),
+    .hsync(hsync),
+    .DATA_WRITE_R(data_R),
+    .DATA_WRITE_G(data_G),
+    .DATA_WRITE_B(data_B),
+    .File_Closed(File_Closed)
 );	
 
 //-------------------------------------------------
@@ -72,7 +70,7 @@ initial begin
 end
 
 always @ (*) 
-	if(enc_done)
-		#1000 $finish;
+	if(File_Closed)
+		#10 $finish;
 
 endmodule

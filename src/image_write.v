@@ -14,7 +14,8 @@ module image_write
     input [7:0]  DATA_WRITE_R,					// Red 8-bit data (odd)
     input [7:0]  DATA_WRITE_G,					// Green 8-bit data (odd)
     input [7:0]  DATA_WRITE_B,					// Blue 8-bit data (odd)
-	output 	reg	 Write_Done
+	output 	reg	 Write_Done,
+    output reg File_Closed = 0
 );	
 reg [7:0] BMP_header [0 : BMP_HEADER_NUM - 1];	// BMP header
 reg [7:0] out_BMP    [0 : WIDTH*HEIGHT*3 - 1];	// Temporary memory for image
@@ -129,6 +130,8 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
             $fwrite(fd, "%c", out_BMP[i+2][7:0]);
         end
         $fclose(fd);
+        $display("Write file successfully!");
+        File_Closed = 1;
     end
 end
 endmodule

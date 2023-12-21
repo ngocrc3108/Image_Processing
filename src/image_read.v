@@ -58,6 +58,7 @@ reg [18:0] data_count; 							// data counting for entire pixels of the image
 //-------------------------------------------------//
 initial begin
     $readmemh(INFILE,total_memory,0,sizeOfLengthReal-1); // read file from INFILE
+	$display("load file successfully");
 end
 // use 3 intermediate signals RGB to save image data
 always@(start) begin

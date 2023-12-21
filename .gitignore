@@ -1,3 +1,4 @@
+isim/
 _xmsgs/
 ex1.txt
 fuse.log
@@ -36,3 +37,5 @@ test_isim_beh.exe
 test_stx_beh.prj
 xilinxsim.ini
 *.html
+*.gise
+*.xise
