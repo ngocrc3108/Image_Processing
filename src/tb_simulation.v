@@ -2,7 +2,17 @@
 /**************************************************************************/
 /******************** Testbench for simulation ****************************/
 /**************************************************************************/
-`include "parameter.v"				// include definition file
+
+/*************************** **********************************************/
+/*************************** Definition file ******************************/
+/*************************** **********************************************/
+`define INPUTFILENAME		 "./images/input.hex" // Input file name
+`define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
+
+// Choose the operation of code by delete // in the beginning of the selected line
+
+//`define BRIGHTNESS_OPERATION
+`define GRAYSCALE_OPERATION
 
 module tb_simulation;
 
@@ -61,5 +71,8 @@ initial begin
     #25 HRESETn = 1;
 end
 
+always @ (*) 
+	if(enc_done)
+		#1000 $finish;
 
 endmodule

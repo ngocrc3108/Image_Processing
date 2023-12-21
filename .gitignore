@@ -35,3 +35,4 @@ test.v
 test_isim_beh.exe
 test_stx_beh.prj
 xilinxsim.ini
+*.html

@@ -1,7 +1,8 @@
 /******************************************************************************/
 /******************  Module for reading and processing image     **************/
 /******************************************************************************/
-`include "parameter.v" 						// Include definition file
+//`define BRIGHTNESS_OPERATION
+`define GRAYSCALE_OPERATION
 module image_read
 #(
   parameter WIDTH 	= 768, 						// Image width
@@ -152,7 +153,7 @@ begin
 	end
 end
 
-assign ctrl_done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
+assign ctrl_done = (data_count >= WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
 //-------------------------------------------------//
 //-------------  Image processing   ---------------//
 //-------------------------------------------------//
@@ -225,3 +226,5 @@ always @(*) begin
 	end
 end
 endmodule
+
+
