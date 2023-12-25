@@ -16,4 +16,6 @@ xst/
 *.xml
 *.ini
 *.exe
+*.gise
+*.xise
 images/output.bmp
