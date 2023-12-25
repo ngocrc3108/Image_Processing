@@ -37,7 +37,6 @@ image_read
 ( 
     .HCLK	            (HCLK    ),
     .HRESETn	        (HRESETn ),
-    .HSYNC	            (hsync   ),
     .DATA_R	            (data_R ),
     .DATA_G	            (data_G ),
     .DATA_B	            (data_B )
@@ -49,7 +48,6 @@ image_write
 (
     .HCLK(HCLK),
     .HRESETn(HRESETn),
-    .hsync(hsync),
     .DATA_WRITE_R(data_R),
     .DATA_WRITE_G(data_G),
     .DATA_WRITE_B(data_B),

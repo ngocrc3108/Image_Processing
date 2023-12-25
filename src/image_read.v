@@ -17,9 +17,6 @@ module image_read
 (
 	input HCLK,									// clock					
 	input HRESETn,								// Reset (active low)
-	output reg HSYNC,							// Horizontal synchronous pulse
-	// An HSYNC indicates that one line of the image is transmitted.
-	// Used to be a horizontal synchronous signals for writing bmp file.
     output reg [7:0]  DATA_R,					// 8 bit Red data (even)
     output reg [7:0]  DATA_G,					// 8 bit Green data (even)
     output reg [7:0]  DATA_B,					// 8 bit Blue data (even)
@@ -159,13 +156,10 @@ assign ctrl_done = (data_count >= WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
 //-------------  Image processing   ---------------//
 //-------------------------------------------------//
 always @(*) begin
-	HSYNC   = 1'b0;
 	DATA_R = 0;
 	DATA_G = 0;
 	DATA_B = 0;                                                                              
-	if(ctrl_data_run) begin
-		
-		HSYNC   = 1'b1;
+	if(ctrl_data_run) begin	
 		`ifdef BRIGHTNESS_OPERATION	
 		/**************************************/		
 		/*		BRIGHTNESS ADDITION OPERATION */

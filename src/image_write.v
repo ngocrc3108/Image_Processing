@@ -10,7 +10,6 @@ module image_write
 (
 	input HCLK,									// Clock	
 	input HRESETn,								// Reset active low
-	input hsync,								// Hsync pulse						
     input [7:0]  DATA_WRITE_R,					// Red 8-bit data (odd)
     input [7:0]  DATA_WRITE_G,					// Green 8-bit data (odd)
     input [7:0]  DATA_WRITE_B,					// Blue 8-bit data (odd)
@@ -66,40 +65,33 @@ always@(posedge HCLK, negedge HRESETn) begin
         row <= 0;
         col <= 0;
     end else begin
-        if(hsync) begin
+        begin
             if(col == WIDTH-1) begin
                 col <= 0;
                 row <= row + 1; // count to obtain row index of the out_BMP temporary memory to save image data
-            end else begin
+            end else 
                 col <= col + 1; // count to obtain column index of the out_BMP temporary memory to save image data
-            end
         end
     end
 end
 // Writing RGB888 even and odd data to the temp memory
 always@(posedge HCLK, negedge HRESETn) begin
-    if(!HRESETn) begin
-        for(k=0;k<WIDTH*HEIGHT*3;k=k+1) begin
+    if(!HRESETn)
+        for(k=0;k<WIDTH*HEIGHT*3;k=k+1)
             out_BMP[k] <= 0;
-        end
-    end else begin
-        if(hsync) begin
-            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+2] <= DATA_WRITE_R;
-            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+1] <= DATA_WRITE_G;
-            out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col  ] <= DATA_WRITE_B;
-        end
+    else begin
+        out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+2] <= DATA_WRITE_R;
+        out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+1] <= DATA_WRITE_G;
+        out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col  ] <= DATA_WRITE_B;
     end
 end
 // data counting
 always@(posedge HCLK, negedge HRESETn)
 begin
-    if(~HRESETn) begin
+    if(~HRESETn)
         data_count <= 0;
-    end
-    else begin
-        if(hsync)
-			data_count <= data_count + 1; // pixels counting for create done flag
-    end
+    else
+		data_count <= data_count + 1; // pixels counting for create done flag
 end
 assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
 always@(posedge HCLK, negedge HRESETn)
