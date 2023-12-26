@@ -6,13 +6,8 @@
 /*************************** **********************************************/
 /*************************** Definition file ******************************/
 /*************************** **********************************************/
-`define INPUTFILENAME		 "./images/input.hex" // Input file name
+`define INPUTFILENAME		 "./images/input_header.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
-
-// Choose the operation of code by delete // in the beginning of the selected line
-
-//`define BRIGHTNESS_OPERATION
-`define GRAYSCALE_OPERATION
 
 module tb_simulation;
 
@@ -21,10 +16,13 @@ module tb_simulation;
 //-------------------------------------------------
 
 reg HCLK, HRESETn;
-wire          hsync;
-wire [ 7 : 0] data_R;
-wire [ 7 : 0] data_G;
-wire [ 7 : 0] data_B;
+wire [7:0] data_R;
+wire [7:0] data_G;
+wire [7:0] data_B;
+wire [31:0] width;
+wire [31:0] height;
+wire [10:0] write_row;
+wire [10:0] write_col;
 wire File_Closed;
 
 //-------------------------------------------------
@@ -35,11 +33,15 @@ image_read
 #(.INFILE(`INPUTFILENAME))
 	u_image_read
 ( 
-    .HCLK	            (HCLK    ),
-    .HRESETn	        (HRESETn ),
-    .DATA_R	            (data_R ),
-    .DATA_G	            (data_G ),
-    .DATA_B	            (data_B )
+    .HCLK(HCLK),
+    .HRESETn(HRESETn),
+    .DATA_R(data_R),
+    .DATA_G(data_G),
+    .DATA_B(data_B),
+    .out_width(width),
+    .out_height(height),
+    .write_row(write_row),
+    .write_col(write_col)
 ); 
 
 image_write 
@@ -51,7 +53,11 @@ image_write
     .DATA_WRITE_R(data_R),
     .DATA_WRITE_G(data_G),
     .DATA_WRITE_B(data_B),
-    .File_Closed(File_Closed)
+    .File_Closed(File_Closed),
+    .width(width),
+    .height(height),
+    .row(write_row),
+    .col(write_col)
 );	
 
 //-------------------------------------------------
