@@ -1,9 +1,10 @@
 /******************************************************************************/
 /******************  Module for reading and processing image     **************/
 /******************************************************************************/
-//`define BRIGHTNESS_OPERATION
+`define BRIGHTNESS_OPERATION
 //`define GRAYSCALE_OPERATION
-`define ROTATE
+//`define ROTATE
+
 module image_read
 #(
   parameter WIDTH 	= 768, 						// Image width
@@ -175,6 +176,10 @@ always @(*) begin
 		/**************************************/		
 		/*		BRIGHTNESS ADDITION OPERATION */
 		/**************************************/
+		out_width = width;
+		out_height = height;
+		write_row = row;
+		write_col = col;
 		if(SIGN == 1) begin
 		// R0
 		tempR = org_R[width * row + col   ] + VALUE;
@@ -224,6 +229,10 @@ always @(*) begin
 		/*		GRAYSCALE_OPERATION 		  */
 		/**************************************/
 		`ifdef GRAYSCALE_OPERATION	
+			out_width = width;
+			out_height = height;
+			write_row = row;
+			write_col = col;
 			value2 = (org_B[width * row + col] + org_R[width * row + col] + org_G[width * row + col]) / 3;
 			DATA_R = value2;
 			DATA_G = value2;

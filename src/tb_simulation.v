@@ -9,11 +9,6 @@
 `define INPUTFILENAME		 "./images/input_header.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
 
-// Choose the operation of code by delete // in the beginning of the selected line
-
-//`define BRIGHTNESS_OPERATION
-`define GRAYSCALE_OPERATION
-
 module tb_simulation;
 
 //-------------------------------------------------
@@ -21,7 +16,6 @@ module tb_simulation;
 //-------------------------------------------------
 
 reg HCLK, HRESETn;
-wire          hsync;
 wire [ 7 : 0] data_R;
 wire [ 7 : 0] data_G;
 wire [ 7 : 0] data_B;
