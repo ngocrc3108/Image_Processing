@@ -27,6 +27,8 @@ wire [ 7 : 0] data_G;
 wire [ 7 : 0] data_B;
 wire [31:0] width;
 wire [31:0] height;
+wire [10:0] write_row;
+wire [10:0] write_col;
 wire File_Closed;
 
 //-------------------------------------------------
@@ -42,8 +44,10 @@ image_read
     .DATA_R	            (data_R ),
     .DATA_G	            (data_G ),
     .DATA_B	            (data_B ),
-    .width(width),
-    .height(height)
+    .out_width(width),
+    .out_height(height),
+    .write_row(write_row),
+    .write_col(write_col)
 ); 
 
 image_write 
@@ -57,7 +61,9 @@ image_write
     .DATA_WRITE_B(data_B),
     .File_Closed(File_Closed),
     .width(width),
-    .height(height)
+    .height(height),
+    .row(write_row),
+    .col(write_col)
 );	
 
 //-------------------------------------------------

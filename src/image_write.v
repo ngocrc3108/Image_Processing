@@ -11,7 +11,9 @@ module image_write
 	input HCLK,									// Clock	
 	input HRESETn,	
     input [31:0] width,
-	input [31:0] height,							// Reset active low
+	input [31:0] height,
+    input [10:0] row,
+    input [10:0] col,
     input [7:0]  DATA_WRITE_R,					// Red 8-bit data (odd)
     input [7:0]  DATA_WRITE_G,					// Green 8-bit data (odd)
     input [7:0]  DATA_WRITE_B,					// Blue 8-bit data (odd)
@@ -24,7 +26,7 @@ integer data_count;								// Counting data
 wire done;										// done flag
 // counting variables
 integer i;
-integer k, row, col;
+integer k;
 integer fd; 
 //----------------------------------------------------------//
 //-------Header data for bmp image--------------------------//
@@ -67,21 +69,6 @@ always @(*) begin
     {BMP_header[25], BMP_header[24], BMP_header[23], BMP_header[22]} <= height;
 end
 
-// row and column counting for temporary memory of image 
-always@(posedge HCLK, negedge HRESETn) begin
-    if(!HRESETn) begin
-        row <= 0;
-        col <= 0;
-    end else begin
-        begin
-            if(col == width-1) begin
-                col <= 0;
-                row <= row + 1; // count to obtain row index of the out_BMP temporary memory to save image data
-            end else 
-                col <= col + 1; // count to obtain column index of the out_BMP temporary memory to save image data
-        end
-    end
-end
 // Writing RGB888 even and odd data to the temp memory
 always@(posedge HCLK, negedge HRESETn) begin
     if(!HRESETn)

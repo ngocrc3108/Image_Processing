@@ -2,7 +2,8 @@
 /******************  Module for reading and processing image     **************/
 /******************************************************************************/
 //`define BRIGHTNESS_OPERATION
-`define GRAYSCALE_OPERATION
+//`define GRAYSCALE_OPERATION
+`define ROTATE
 module image_read
 #(
   parameter WIDTH 	= 768, 						// Image width
@@ -17,8 +18,10 @@ module image_read
 (
 	input HCLK,									// clock					
 	input HRESETn,								// Reset (active low)
-	output [31:0] width,
-	output [31:0] height,
+	output reg [31:0] out_width,
+	output reg [31:0] out_height,
+	output reg [10:0] write_row,
+	output reg [10:0] write_col,
     output reg [7:0]  DATA_R,					// 8 bit Red data (even)
     output reg [7:0]  DATA_G,					// 8 bit Green data (even)
     output reg [7:0]  DATA_B,					// 8 bit Blue data (even)
@@ -49,10 +52,11 @@ integer i, j;
 integer tempR,tempG,tempB; 					// temporary variables in contrast and brightness operation
 
 integer value,value2;							// temporary variables in invert and threshold operation
-reg [ 9:0] row; 								// row index of the image
+reg [10:0] row; 								// row index of the image
 reg [10:0] col; 								// column index of the image
 reg [18:0] data_count; 							// data counting for entire pixels of the image
-
+wire [31:0] width;
+wire [31:0] height;
 //-------------------------------------------------//
 // -------- Reading data from input file ----------//
 //-------------------------------------------------//
@@ -224,6 +228,16 @@ always @(*) begin
 			DATA_R = value2;
 			DATA_G = value2;
 			DATA_B = value2;	
+		`endif
+
+		`ifdef ROTATE	
+			out_width = height;
+			out_height = width;
+			write_row = col;
+			write_col = height - row;
+			DATA_R = org_R[width * row + col];
+			DATA_G = org_G[width * row + col];
+			DATA_B = org_B[width * row + col];	
 		`endif
 	end
 end
