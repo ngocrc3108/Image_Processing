@@ -1,14 +1,14 @@
 /******************************************************************************/
 /******************  Module for reading and processing image     **************/
 /******************************************************************************/
-`define BRIGHTNESS_OPERATION
-//`define GRAYSCALE_OPERATION
+//`define BRIGHTNESS_OPERATION
+`define GRAYSCALE_OPERATION
 //`define ROTATE
 
 module image_read
 #(
-  parameter WIDTH 	= 768, 						// Image width
-			HEIGHT 	= 512, 						// Image height
+  parameter MAX_WIDTH 	= 768, 						// Image width
+			MAX_HEIGHT 	= 512, 						// Image height
 			INFILE  = "input.hex", 			// image file
 			VALUE= 100,							// value for Brightness operation
 			THRESHOLD= 90,						// Threshold value for Threshold operation
@@ -33,7 +33,7 @@ module image_read
 // Internal Signals
 //-------------------------------------------------
 localparam BMP_HEADER_NUM = 54;
-localparam sizeOfLengthReal = WIDTH*HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
+localparam sizeOfLengthReal = MAX_WIDTH*MAX_HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
 localparam		ST_IDLE 	= 2'b00,			// idle state
 				ST_DATA		= 2'b11;			// state for data processing 
@@ -43,10 +43,10 @@ reg start;										// start signal: trigger Finite state machine beginning to o
 reg HRESETn_d;									// delayed reset signal: use to create start signal
 reg 		ctrl_data_run;						// control signal for data processing
 reg [7:0]   total_memory [0 :BMP_HEADER_NUM + sizeOfLengthReal-1];	// memory to store  8-bit data image
-// temporary memory to save image data : size will be WIDTH*HEIGHT*3		
-reg [7:0] org_R  [0 : WIDTH*HEIGHT - 1]; 			// temporary storage for R component
-reg [7:0] org_G  [0 : WIDTH*HEIGHT - 1];			// temporary storage for G component
-reg [7:0] org_B  [0 : WIDTH*HEIGHT - 1];			// temporary storage for B component
+// temporary memory to save image data : size will be MAX_WIDTH*MAX_HEIGHT*3		
+reg [7:0] org_R  [0 : MAX_WIDTH*MAX_HEIGHT - 1]; 			// temporary storage for R component
+reg [7:0] org_G  [0 : MAX_WIDTH*MAX_HEIGHT - 1];			// temporary storage for G component
+reg [7:0] org_B  [0 : MAX_WIDTH*MAX_HEIGHT - 1];			// temporary storage for B component
 // counting variables
 integer i, j;
 // temporary signals for calculation: details in the paper.

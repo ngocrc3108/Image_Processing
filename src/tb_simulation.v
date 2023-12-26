@@ -16,9 +16,9 @@ module tb_simulation;
 //-------------------------------------------------
 
 reg HCLK, HRESETn;
-wire [ 7 : 0] data_R;
-wire [ 7 : 0] data_G;
-wire [ 7 : 0] data_B;
+wire [7:0] data_R;
+wire [7:0] data_G;
+wire [7:0] data_B;
 wire [31:0] width;
 wire [31:0] height;
 wire [10:0] write_row;
@@ -33,11 +33,11 @@ image_read
 #(.INFILE(`INPUTFILENAME))
 	u_image_read
 ( 
-    .HCLK	            (HCLK    ),
-    .HRESETn	        (HRESETn ),
-    .DATA_R	            (data_R ),
-    .DATA_G	            (data_G ),
-    .DATA_B	            (data_B ),
+    .HCLK(HCLK),
+    .HRESETn(HRESETn),
+    .DATA_R(data_R),
+    .DATA_G(data_G),
+    .DATA_B(data_B),
     .out_width(width),
     .out_height(height),
     .write_row(write_row),
