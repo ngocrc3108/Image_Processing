@@ -74,7 +74,7 @@ always@(posedge HCLK, negedge HRESETn) begin
         col <= 0;
     end else begin
         begin
-            if(col == WIDTH-1) begin
+            if(col == width-1) begin
                 col <= 0;
                 row <= row + 1; // count to obtain row index of the out_BMP temporary memory to save image data
             end else 
@@ -85,12 +85,12 @@ end
 // Writing RGB888 even and odd data to the temp memory
 always@(posedge HCLK, negedge HRESETn) begin
     if(!HRESETn)
-        for(k=0;k<WIDTH*HEIGHT*3;k=k+1)
+        for(k=0;k<width*height*3;k=k+1)
             out_BMP[k] <= 0;
     else begin
-        out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+2] <= DATA_WRITE_R;
-        out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col+1] <= DATA_WRITE_G;
-        out_BMP[WIDTH*3*(HEIGHT-row-1)+3*col  ] <= DATA_WRITE_B;
+        out_BMP[width*3*(height-row-1)+3*col+2] <= DATA_WRITE_R;
+        out_BMP[width*3*(height-row-1)+3*col+1] <= DATA_WRITE_G;
+        out_BMP[width*3*(height-row-1)+3*col  ] <= DATA_WRITE_B;
     end
 end
 // data counting
@@ -101,7 +101,7 @@ begin
     else
 		data_count <= data_count + 1; // pixels counting for create done flag
 end
-assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
+assign done = (data_count == width*height-1)? 1'b1: 1'b0; // done flag once all pixels were processed
 always@(posedge HCLK, negedge HRESETn)
 begin
     if(~HRESETn) begin
@@ -123,7 +123,7 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
             $fwrite(fd, "%c", BMP_header[i][7:0]); // write the header
         end
         
-        for(i=0; i<WIDTH*HEIGHT*3; i=i+3) begin
+        for(i=0; i<width*height*3; i=i+3) begin
 		// write RBG
             $fwrite(fd, "%c", out_BMP[i  ][7:0]);
             $fwrite(fd, "%c", out_BMP[i+1][7:0]);

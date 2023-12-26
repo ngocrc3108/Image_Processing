@@ -63,11 +63,11 @@ end
 // use 3 intermediate signals RGB to save image data
 always@(start) begin
     if(start == 1'b1) begin
-        for(i=0; i<HEIGHT; i=i+1) begin
-            for(j=0; j<WIDTH; j=j+1) begin
-                org_R[WIDTH*i+j] = total_memory[BMP_HEADER_NUM+WIDTH*3*(HEIGHT-i-1)+3*j+0]; // save Red component
-                org_G[WIDTH*i+j] = total_memory[BMP_HEADER_NUM+WIDTH*3*(HEIGHT-i-1)+3*j+1];// save Green component
-                org_B[WIDTH*i+j] = total_memory[BMP_HEADER_NUM+WIDTH*3*(HEIGHT-i-1)+3*j+2];// save Blue component
+        for(i=0; i<height; i=i+1) begin
+            for(j=0; j<width; j=j+1) begin
+                org_R[width*i+j] = total_memory[BMP_HEADER_NUM+width*3*(height-i-1)+3*j+0]; // save Red component
+                org_G[width*i+j] = total_memory[BMP_HEADER_NUM+width*3*(height-i-1)+3*j+1];// save Green component
+                org_B[width*i+j] = total_memory[BMP_HEADER_NUM+width*3*(height-i-1)+3*j+2];// save Blue component
             end
         end
     end
@@ -148,7 +148,7 @@ begin
 	else begin
 		if(ctrl_data_run) begin
 			data_count <= data_count + 1;
-			if(col == WIDTH - 1) begin
+			if(col == width - 1) begin
 				row <= row + 1;
 				col <= 0;
 			end
@@ -158,7 +158,7 @@ begin
 	end
 end
 
-assign ctrl_done = (data_count >= WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag
+assign ctrl_done = (data_count >= width*height-1)? 1'b1: 1'b0; // done flag
 //-------------------------------------------------//
 //-------------  Image processing   ---------------//
 //-------------------------------------------------//
@@ -173,46 +173,46 @@ always @(*) begin
 		/**************************************/
 		if(SIGN == 1) begin
 		// R0
-		tempR = org_R[WIDTH * row + col   ] + VALUE;
+		tempR = org_R[width * row + col   ] + VALUE;
 		if (tempR > 255)
 			DATA_R = 255;
 		else
-			DATA_R = org_R[WIDTH * row + col   ] + VALUE;
+			DATA_R = org_R[width * row + col   ] + VALUE;
 		// G0	
-		tempG = org_G[WIDTH * row + col   ] + VALUE;
+		tempG = org_G[width * row + col   ] + VALUE;
 		if (tempG > 255)
 			DATA_G = 255;
 		else
-			DATA_G = org_G[WIDTH * row + col   ] + VALUE;	
+			DATA_G = org_G[width * row + col   ] + VALUE;	
 		// B
-		tempB = org_B[WIDTH * row + col   ] + VALUE;
+		tempB = org_B[width * row + col   ] + VALUE;
 		if (tempB > 255)
 			DATA_B = 255;
 		else
-			DATA_B = org_B[WIDTH * row + col   ] + VALUE;
+			DATA_B = org_B[width * row + col   ] + VALUE;
 	end
 	else begin
 	/**************************************/		
 	/*	BRIGHTNESS SUBTRACTION OPERATION */
 	/**************************************/
 		// R0
-		tempR = org_R[WIDTH * row + col   ] - VALUE;
+		tempR = org_R[width * row + col   ] - VALUE;
 		if (tempR < 0)
 			DATA_R = 0;
 		else
-			DATA_R = org_R[WIDTH * row + col   ] - VALUE;	
+			DATA_R = org_R[width * row + col   ] - VALUE;	
 		// G0	
-		tempG = org_G[WIDTH * row + col   ] - VALUE;
+		tempG = org_G[width * row + col   ] - VALUE;
 		if (tempG < 0)
 			DATA_G = 0;
 		else
-			DATA_G = org_G[WIDTH * row + col   ] - VALUE;		
+			DATA_G = org_G[width * row + col   ] - VALUE;		
 		// B0
-		tempB = org_B[WIDTH * row + col   ] - VALUE;
+		tempB = org_B[width * row + col   ] - VALUE;
 		if (tempB < 0)
 			DATA_B = 0;
 		else
-			DATA_B = org_B[WIDTH * row + col   ] - VALUE;
+			DATA_B = org_B[width * row + col   ] - VALUE;
 	 end
 		`endif
 	
@@ -220,7 +220,7 @@ always @(*) begin
 		/*		GRAYSCALE_OPERATION 		  */
 		/**************************************/
 		`ifdef GRAYSCALE_OPERATION	
-			value2 = (org_B[WIDTH * row + col] + org_R[WIDTH * row + col] + org_G[WIDTH * row + col]) / 3;
+			value2 = (org_B[width * row + col] + org_R[width * row + col] + org_G[width * row + col]) / 3;
 			DATA_R = value2;
 			DATA_G = value2;
 			DATA_B = value2;	
