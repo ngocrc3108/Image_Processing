@@ -9,7 +9,9 @@ module image_write
 )
 (
 	input HCLK,									// Clock	
-	input HRESETn,								// Reset active low
+	input HRESETn,	
+    input [31:0] width,
+	input [31:0] height,							// Reset active low
     input [7:0]  DATA_WRITE_R,					// Red 8-bit data (odd)
     input [7:0]  DATA_WRITE_G,					// Green 8-bit data (odd)
     input [7:0]  DATA_WRITE_B,					// Blue 8-bit data (odd)
@@ -59,6 +61,12 @@ initial begin
 	BMP_header[26] =  1;
 	BMP_header[27] =  0;
 end
+
+always @(*) begin
+    {BMP_header[21], BMP_header[20], BMP_header[19], BMP_header[18]} <= width;
+    {BMP_header[25], BMP_header[24], BMP_header[23], BMP_header[22]} <= height;
+end
+
 // row and column counting for temporary memory of image 
 always@(posedge HCLK, negedge HRESETn) begin
     if(!HRESETn) begin

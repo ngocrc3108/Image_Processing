@@ -6,7 +6,7 @@
 /*************************** **********************************************/
 /*************************** Definition file ******************************/
 /*************************** **********************************************/
-`define INPUTFILENAME		 "./images/input.hex" // Input file name
+`define INPUTFILENAME		 "./images/input_header.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
 
 // Choose the operation of code by delete // in the beginning of the selected line
@@ -25,6 +25,8 @@ wire          hsync;
 wire [ 7 : 0] data_R;
 wire [ 7 : 0] data_G;
 wire [ 7 : 0] data_B;
+wire [31:0] width;
+wire [31:0] height;
 wire File_Closed;
 
 //-------------------------------------------------
@@ -39,7 +41,9 @@ image_read
     .HRESETn	        (HRESETn ),
     .DATA_R	            (data_R ),
     .DATA_G	            (data_G ),
-    .DATA_B	            (data_B )
+    .DATA_B	            (data_B ),
+    .width(width),
+    .height(height)
 ); 
 
 image_write 
@@ -51,7 +55,9 @@ image_write
     .DATA_WRITE_R(data_R),
     .DATA_WRITE_G(data_G),
     .DATA_WRITE_B(data_B),
-    .File_Closed(File_Closed)
+    .File_Closed(File_Closed),
+    .width(width),
+    .height(height)
 );	
 
 //-------------------------------------------------

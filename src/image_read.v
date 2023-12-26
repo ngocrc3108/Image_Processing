@@ -17,6 +17,8 @@ module image_read
 (
 	input HCLK,									// clock					
 	input HRESETn,								// Reset (active low)
+	output [31:0] width,
+	output [31:0] height,
     output reg [7:0]  DATA_R,					// 8 bit Red data (even)
     output reg [7:0]  DATA_G,					// 8 bit Green data (even)
     output reg [7:0]  DATA_B,					// 8 bit Blue data (even)
@@ -26,7 +28,7 @@ module image_read
 //-------------------------------------------------
 // Internal Signals
 //-------------------------------------------------
-
+localparam BMP_HEADER_NUM = 54;
 localparam sizeOfLengthReal = WIDTH*HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
 localparam		ST_IDLE 	= 2'b00,			// idle state
@@ -36,7 +38,7 @@ reg [1:0] cstate, 								// current state
 reg start;										// start signal: trigger Finite state machine beginning to operate
 reg HRESETn_d;									// delayed reset signal: use to create start signal
 reg 		ctrl_data_run;						// control signal for data processing
-reg [7:0]   total_memory [0 : sizeOfLengthReal-1];	// memory to store  8-bit data image
+reg [7:0]   total_memory [0 :BMP_HEADER_NUM + sizeOfLengthReal-1];	// memory to store  8-bit data image
 // temporary memory to save image data : size will be WIDTH*HEIGHT*3		
 reg [7:0] org_R  [0 : WIDTH*HEIGHT - 1]; 			// temporary storage for R component
 reg [7:0] org_G  [0 : WIDTH*HEIGHT - 1];			// temporary storage for G component
@@ -50,6 +52,7 @@ integer value,value2;							// temporary variables in invert and threshold opera
 reg [ 9:0] row; 								// row index of the image
 reg [10:0] col; 								// column index of the image
 reg [18:0] data_count; 							// data counting for entire pixels of the image
+
 //-------------------------------------------------//
 // -------- Reading data from input file ----------//
 //-------------------------------------------------//
@@ -62,13 +65,17 @@ always@(start) begin
     if(start == 1'b1) begin
         for(i=0; i<HEIGHT; i=i+1) begin
             for(j=0; j<WIDTH; j=j+1) begin
-                org_R[WIDTH*i+j] = total_memory[WIDTH*3*(HEIGHT-i-1)+3*j+0]; // save Red component
-                org_G[WIDTH*i+j] = total_memory[WIDTH*3*(HEIGHT-i-1)+3*j+1];// save Green component
-                org_B[WIDTH*i+j] = total_memory[WIDTH*3*(HEIGHT-i-1)+3*j+2];// save Blue component
+                org_R[WIDTH*i+j] = total_memory[BMP_HEADER_NUM+WIDTH*3*(HEIGHT-i-1)+3*j+0]; // save Red component
+                org_G[WIDTH*i+j] = total_memory[BMP_HEADER_NUM+WIDTH*3*(HEIGHT-i-1)+3*j+1];// save Green component
+                org_B[WIDTH*i+j] = total_memory[BMP_HEADER_NUM+WIDTH*3*(HEIGHT-i-1)+3*j+2];// save Blue component
             end
         end
     end
 end
+
+assign width = {total_memory[21], total_memory[20], total_memory[19], total_memory[18]};
+assign height = {total_memory[25], total_memory[24], total_memory[23], total_memory[22]};
+
 //----------------------------------------------------//
 // ---Begin to read image file once reset was high ---//
 // ---by creating a starting pulse (start)------------//
