@@ -1,9 +1,6 @@
 /******************************************************************************/
 /******************  Module for reading and processing image     **************/
 /******************************************************************************/
-//`define BRIGHTNESS_OPERATION
-`define GRAYSCALE_OPERATION
-//`define ROTATE
 
 module image_read
 #(
@@ -24,10 +21,9 @@ module image_read
 	output reg [31:0] out_height,
 	output reg [10:0] write_row,
 	output reg [10:0] write_col,
-    output reg [7:0]  DATA_R,					// 8 bit Red data (even)
-    output reg [7:0]  DATA_G,					// 8 bit Green data (even)
-    output reg [7:0]  DATA_B,					// 8 bit Blue data (even)
-	// Process and transmit 2 pixels in parallel to make the process faster, you can modify to transmit 1 pixels or more if needed
+    output reg [7:0]  DATA_R,					// 8 bit Red data
+    output reg [7:0]  DATA_G,					// 8 bit Green data
+    output reg [7:0]  DATA_B,					// 8 bit Blue data
 	output			  ctrl_done					// Done flag
 );			
 //-------------------------------------------------
@@ -41,7 +37,7 @@ localparam BMP_HEADER_NUM = 54;
 localparam sizeOfLengthReal = MAX_WIDTH*MAX_HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
 localparam		ST_IDLE 	= 2'b00,			// idle state
-				ST_DATA		= 2'b11;			// state for data processing 
+				ST_DATA		= 2'b01;			// state for data processing 
 reg [1:0] cstate, 								// current state
 		  nstate;								// next state			
 reg start;										// start signal: trigger Finite state machine beginning to operate

@@ -1,12 +1,6 @@
 `timescale 1ns/1ps 
-/**************************************************************************/
-/******************** Testbench for simulation ****************************/
-/**************************************************************************/
 
-/*************************** **********************************************/
-/*************************** Definition file ******************************/
-/*************************** **********************************************/
-`define INPUTFILENAME		 "./images/hex/480-360.hex" // Input file name
+`define INPUTFILENAME		 "./images/hex/768-512.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
 
 module tb_simulation;
@@ -18,7 +12,6 @@ localparam ROTATE = 2;
 //-------------------------------------------------
 // Internal Signals
 //-------------------------------------------------
-
 reg CLK, RESET;
 reg [1:0] opcode;
 wire [7:0] data_R;
@@ -29,10 +22,6 @@ wire [31:0] height;
 wire [10:0] write_row;
 wire [10:0] write_col;
 wire File_Closed;
-
-//-------------------------------------------------
-// Components
-//-------------------------------------------------
 
 image_read 
 #(.INFILE(`INPUTFILENAME))
@@ -66,9 +55,6 @@ image_write
     .col(write_col)
 );	
 
-//-------------------------------------------------
-// Test Vectors
-//-------------------------------------------------
 initial begin 
     CLK = 0;
     forever #10 CLK = ~CLK;
