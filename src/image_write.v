@@ -17,17 +17,15 @@ module image_write
     input [7:0]  RED,					// Red 8-bit data (odd)
     input [7:0]  GREEN,					// Green 8-bit data (odd)
     input [7:0]  BLUE,					// Blue 8-bit data (odd)
-	output 	reg	 Write_Done,
-    output reg FILE_CLOSED = 0
+    output reg FILE_CLOSED
 );	
 reg [7:0] BMP_header [0:BMP_HEADER_NUM - 1];	// BMP header
 reg [7:0] out_BMP    [0:MAX_WIDTH*MAX_HEIGHT*3 - 1];	// Temporary memory for image
 integer data_count;								// Counting data
 wire done;										// done flag
 // counting variables
-integer i;
-integer k;
-integer fd; 
+integer i, k, fd;
+
 //----------------------------------------------------------//
 //-------Header data for bmp image--------------------------//
 //----------------------------------------------------------//
@@ -107,25 +105,17 @@ begin
     else
 		data_count <= data_count + 1; // pixels counting for create done flag
 end
+
 assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
 
-always@(posedge CLK, negedge RESET)
-begin
-    if(~RESET) begin
-        Write_Done <= 0;
-    end
-    else begin
-		Write_Done <= done;
-    end
-end
 //---------------------------------------------------------//
 //--------------Write .bmp file		----------------------//
 //----------------------------------------------------------//
 initial begin
     fd = $fopen(INFILE, "wb+");
 end
-always@(Write_Done) begin // once the processing was done, bmp image will be created
-    if(Write_Done == 1'b1) begin
+always@(done) begin // once the processing was done, bmp image will be created
+    if(done == 1'b1) begin
         for(i=0; i<BMP_HEADER_NUM; i=i+1) begin
             $fwrite(fd, "%c", BMP_header[i][7:0]); // write the header
         end
@@ -140,5 +130,7 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
         $display("Write file successfully!");
         FILE_CLOSED = 1;
     end
+    else
+       FILE_CLOSED = 0;
 end
 endmodule
