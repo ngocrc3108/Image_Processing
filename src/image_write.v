@@ -94,9 +94,9 @@ always@(posedge CLK, negedge RESET) begin
         for(k=0;k<WIDTH*HEIGHT*3;k=k+1)
             out_BMP[k] <= 0;
     else begin
-        out_BMP[WIDTH*3*(HEIGHT-ROW-1)+3*COL+2] <= RED;
-        out_BMP[WIDTH*3*(HEIGHT-ROW-1)+3*COL+1] <= GREEN;
-        out_BMP[WIDTH*3*(HEIGHT-ROW-1)+3*COL  ] <= BLUE;
+        out_BMP[WIDTH*3*ROW + 3*COL + 2] <= RED;
+        out_BMP[WIDTH*3*ROW + 3*COL + 1] <= GREEN;
+        out_BMP[WIDTH*3*ROW + 3*COL    ] <= BLUE;
     end
 end
 // data counting
@@ -108,6 +108,7 @@ begin
 		data_count <= data_count + 1; // pixels counting for create done flag
 end
 assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
+
 always@(posedge CLK, negedge RESET)
 begin
     if(~RESET) begin

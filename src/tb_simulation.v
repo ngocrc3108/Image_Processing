@@ -89,7 +89,7 @@ end
 
 initial begin
     RESET = 0;
-    opcode = ROTATE;
+    opcode = GRAYSCALE;
     #25 RESET = 1;
 end
 
