@@ -1,6 +1,6 @@
 `timescale 1ns/1ps 
 
-`define INPUTFILENAME		 "./images/hex/768-512.hex" // Input file name
+`define INPUTFILENAME		 "./images/hex/640-960.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
 
 module tb_simulation;
@@ -89,7 +89,7 @@ end
 
 initial begin
     RESET = 0;
-    opcode = GRAYSCALE;
+    opcode = ROTATE;
     #25 RESET = 1;
 end
 

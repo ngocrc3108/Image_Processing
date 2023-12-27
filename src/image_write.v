@@ -86,7 +86,7 @@ always @(*) begin
     {BMP_header[25], BMP_header[24], BMP_header[23], BMP_header[22]} <= HEIGHT;
 end
 
-// Writing RGB888 even and odd data to the temp memory
+// Writing RGB888 data to the temp memory
 always@(posedge CLK, negedge RESET) begin
     if(!RESET)
         for(k=0;k<WIDTH*HEIGHT*3;k=k+1)
@@ -97,6 +97,7 @@ always@(posedge CLK, negedge RESET) begin
         out_BMP[WIDTH*3*ROW + 3*COL    ] <= BLUE;
     end
 end
+
 // data counting
 always@(posedge CLK, negedge RESET)
 begin
@@ -108,9 +109,7 @@ end
 
 assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
 
-//---------------------------------------------------------//
-//--------------Write .bmp file		----------------------//
-//----------------------------------------------------------//
+// Write .bmp file	
 initial begin
     fd = $fopen(INFILE, "wb+");
 end

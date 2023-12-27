@@ -56,7 +56,7 @@ begin
         start <= 0;
 		reset_d <= 0;
     end
-    else begin											//        ______		 				
+    else begin										//        ______		 				
         reset_d <= RESET;							//       |		|
 		if(RESET == 1'b1 && reset_d == 1'b0)		// __0___|	1	|___0____	: starting pulse
 			start <= 1'b1;
