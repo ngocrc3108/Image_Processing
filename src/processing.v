@@ -3,9 +3,9 @@ module processing
 #(
   parameter MAX_WIDTH 	= 1080, 						// Image width
 			MAX_HEIGHT 	= 1080, 						// Image height
-			INFILE  = "input.hex", 			// image file
-			VALUE = 100,							// value for Brightness operation
-			SIGN=0								// Sign value using for brightness operation
+			INFILE = "input.hex", 			// image file
+			BRIGHTNESS_OFFSET = 100,							// value for Brightness operation
+			SIGN = 0								// Sign value using for brightness operation
 													// SIGN = 0: Brightness subtraction
 													// SIGN = 1: Brightness addition
 )
@@ -35,17 +35,16 @@ localparam BRIGHTNESS = 0;
 localparam GRAYSCALE = 1;
 localparam ROTATE = 2;
 
-localparam		IDLE 	    = 2'b00,			// idle state
-				PROCESSING	= 2'b01;			// state for data processing 
-reg [1:0] cstate, 								// current state
-		  nstate;								// next state			
+localparam IDLE		  = 2'b00;			// idle state
+localparam PROCESSING = 2'b01;			// state for data processing 
+reg [1:0] cstate; 								// current state
+reg [1:0] nstate;								// next state			
 reg start;										// start signal: trigger Finite state machine beginning to operate
-reg RESET_d;									// delayed reset signal: use to create start signal
-wire ctrl_done;					// Done flag
-
-integer value, value2;							// temporary variables in invert and threshold operation
-integer tempR, tempG, tempB;
+reg reset_d;									// delayed reset signal: use to create start signal
+integer average;								// temporary variables for grayscale operation
+integer tempRed, tempGreen, tempBlue;
 reg [18:0] data_count; 							// data counting for entire pixels of the image
+wire ctrl_done;					// Done flag
 
 //----------------------------------------------------//
 // ---Begin to read image file once reset was high ---//
@@ -55,11 +54,11 @@ always@(posedge CLK, negedge RESET)
 begin
     if(!RESET) begin
         start <= 0;
-		RESET_d <= 0;
+		reset_d <= 0;
     end
     else begin											//        ______		 				
-        RESET_d <= RESET;							//       |		|
-		if(RESET == 1'b1 && RESET_d == 1'b0)		// __0___|	1	|___0____	: starting pulse
+        reset_d <= RESET;							//       |		|
+		if(RESET == 1'b1 && reset_d == 1'b0)		// __0___|	1	|___0____	: starting pulse
 			start <= 1'b1;
 		else
 			start <= 1'b0;
@@ -124,29 +123,29 @@ assign ctrl_done = (data_count >= READ_WIDTH*READ_HEIGHT-1)? 1'b1: 1'b0; // done
 //-------------------------------------------------//
 always @(*)
 	if(OPCODE == BRIGHTNESS) begin
-		WRITE_WIDTH = READ_WIDTH;
-		WRITE_HEIGHT = READ_HEIGHT;
-		WRITE_ROW = READ_ROW;
-		WRITE_COL = READ_COL;
+		WRITE_WIDTH <= READ_WIDTH;
+		WRITE_HEIGHT <= READ_HEIGHT;
+		WRITE_ROW <= READ_ROW;
+		WRITE_COL <= READ_COL;
 		if(SIGN == 1) begin
-			tempR = READ_RED + VALUE;
-			WRITE_RED = tempR > 255 ? 255 : tempR;
+			tempRed <= READ_RED + BRIGHTNESS_OFFSET;
+			WRITE_RED <= tempRed > 255 ? 255 : tempRed;
 
-			tempG = READ_GREEN + VALUE;
-			WRITE_GREEN = tempG > 255 ? 255 : tempG;
+			tempGreen <= READ_GREEN + BRIGHTNESS_OFFSET;
+			WRITE_GREEN <= tempGreen > 255 ? 255 : tempGreen;
 
-			tempB = READ_BLUE + VALUE;
-			WRITE_BLUE = tempB > 255 ? 255 : tempB;
+			tempBlue <= READ_BLUE + BRIGHTNESS_OFFSET;
+			WRITE_BLUE <= tempBlue > 255 ? 255 : tempBlue;
 		end
 		else begin
-			tempR = READ_RED - VALUE;
-			WRITE_RED = tempR < 0 ? 0 : tempR;
+			tempRed <= READ_RED - BRIGHTNESS_OFFSET;
+			WRITE_RED <= tempRed < 0 ? 0 : tempRed;
 
-			tempG = READ_GREEN - VALUE;
-			WRITE_GREEN = tempG < 0 ? 0 : tempG;
+			tempGreen <= READ_GREEN - BRIGHTNESS_OFFSET;
+			WRITE_GREEN <= tempGreen < 0 ? 0 : tempGreen;
 
-			tempB = READ_BLUE - VALUE;
-			WRITE_BLUE = tempB < 0 ? 0 : tempB;
+			tempBlue <= READ_BLUE - BRIGHTNESS_OFFSET;
+			WRITE_BLUE <= tempBlue < 0 ? 0 : tempBlue;
 		end
 	end
 	else if(OPCODE == GRAYSCALE) begin
@@ -154,10 +153,10 @@ always @(*)
 		WRITE_HEIGHT <= READ_HEIGHT;
 		WRITE_ROW <= READ_ROW;
 		WRITE_COL <= READ_COL;
-		value2 <= (READ_RED + READ_GREEN + READ_BLUE) / 3;
-		WRITE_RED <= value2;
-		WRITE_GREEN <= value2;
-		WRITE_BLUE <= value2;
+		average <= (READ_RED + READ_GREEN + READ_BLUE) / 3;
+		WRITE_RED <= average;
+		WRITE_GREEN <= average;
+		WRITE_BLUE <= average;
 	end
 	else if(OPCODE == ROTATE) begin
 		WRITE_WIDTH <= READ_HEIGHT;
