@@ -19,7 +19,7 @@ localparam ROTATE = 2;
 // Internal Signals
 //-------------------------------------------------
 
-reg HCLK, HRESETn;
+reg CLK, RESET;
 reg [1:0] opcode;
 wire [7:0] data_R;
 wire [7:0] data_G;
@@ -39,8 +39,8 @@ image_read
 	u_image_read
 (
     .opcode(opcode), 
-    .HCLK(HCLK),
-    .HRESETn(HRESETn),
+    .CLK(CLK),
+    .RESET(RESET),
     .DATA_R(data_R),
     .DATA_G(data_G),
     .DATA_B(data_B),
@@ -54,8 +54,8 @@ image_write
 #(.INFILE(`OUTPUTFILENAME))
 	u_image_write
 (
-    .HCLK(HCLK),
-    .HRESETn(HRESETn),
+    .CLK(CLK),
+    .RESET(RESET),
     .DATA_WRITE_R(data_R),
     .DATA_WRITE_G(data_G),
     .DATA_WRITE_B(data_B),
@@ -70,14 +70,14 @@ image_write
 // Test Vectors
 //-------------------------------------------------
 initial begin 
-    HCLK = 0;
-    forever #10 HCLK = ~HCLK;
+    CLK = 0;
+    forever #10 CLK = ~CLK;
 end
 
 initial begin
-    HRESETn     = 0;
+    RESET = 0;
     opcode = GRAYSCALE;
-    #25 HRESETn = 1;
+    #25 RESET = 1;
 end
 
 always @ (*) 

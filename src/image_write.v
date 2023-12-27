@@ -2,14 +2,14 @@
 /******************     Module for writing .bmp image    		 *************/
 /******************************************************************************/
 module image_write
-#(parameter MAX_WIDTH 	= 768,						// Image width
-			MAX_HEIGHT 	= 512,						// Image height
+#(parameter MAX_WIDTH 	= 1080,						// Image width
+			MAX_HEIGHT 	= 1080,						// Image height
 			INFILE  = "output.bmp",				// Output image
 			BMP_HEADER_NUM = 54					// Header for bmp image
 )
 (
-	input HCLK,									// Clock	
-	input HRESETn,	
+	input CLK,									// Clock	
+	input RESET,	
     input [31:0] width,
 	input [31:0] height,
     input [10:0] row,
@@ -89,8 +89,8 @@ always @(*) begin
 end
 
 // Writing RGB888 even and odd data to the temp memory
-always@(posedge HCLK, negedge HRESETn) begin
-    if(!HRESETn)
+always@(posedge CLK, negedge RESET) begin
+    if(!RESET)
         for(k=0;k<width*height*3;k=k+1)
             out_BMP[k] <= 0;
     else begin
@@ -100,17 +100,17 @@ always@(posedge HCLK, negedge HRESETn) begin
     end
 end
 // data counting
-always@(posedge HCLK, negedge HRESETn)
+always@(posedge CLK, negedge RESET)
 begin
-    if(~HRESETn)
+    if(~RESET)
         data_count <= 0;
     else
 		data_count <= data_count + 1; // pixels counting for create done flag
 end
 assign done = (data_count == width*height-1)? 1'b1: 1'b0; // done flag once all pixels were processed
-always@(posedge HCLK, negedge HRESETn)
+always@(posedge CLK, negedge RESET)
 begin
-    if(~HRESETn) begin
+    if(~RESET) begin
         Write_Done <= 0;
     end
     else begin

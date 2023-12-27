@@ -7,8 +7,8 @@
 
 module image_read
 #(
-  parameter MAX_WIDTH 	= 768, 						// Image width
-			MAX_HEIGHT 	= 512, 						// Image height
+  parameter MAX_WIDTH 	= 1080, 						// Image width
+			MAX_HEIGHT 	= 1080, 						// Image height
 			INFILE  = "input.hex", 			// image file
 			VALUE= 100,							// value for Brightness operation
 			THRESHOLD= 90,						// Threshold value for Threshold operation
@@ -18,8 +18,8 @@ module image_read
 )
 (
 	input [1:0] opcode,
-	input HCLK,									// clock					
-	input HRESETn,								// Reset (active low)
+	input CLK,									// clock					
+	input RESET,								// Reset (active low)
 	output reg [31:0] out_width,
 	output reg [31:0] out_height,
 	output reg [10:0] write_row,
@@ -45,7 +45,7 @@ localparam		ST_IDLE 	= 2'b00,			// idle state
 reg [1:0] cstate, 								// current state
 		  nstate;								// next state			
 reg start;										// start signal: trigger Finite state machine beginning to operate
-reg HRESETn_d;									// delayed reset signal: use to create start signal
+reg RESET_d;									// delayed reset signal: use to create start signal
 reg 		ctrl_data_run;						// control signal for data processing
 reg [7:0]   total_memory [0 :BMP_HEADER_NUM + sizeOfLengthReal-1];	// memory to store  8-bit data image
 // temporary memory to save image data : size will be MAX_WIDTH*MAX_HEIGHT*3		
@@ -90,15 +90,15 @@ assign height = {total_memory[25], total_memory[24], total_memory[23], total_mem
 // ---Begin to read image file once reset was high ---//
 // ---by creating a starting pulse (start)------------//
 //----------------------------------------------------//
-always@(posedge HCLK, negedge HRESETn)
+always@(posedge CLK, negedge RESET)
 begin
-    if(!HRESETn) begin
+    if(!RESET) begin
         start <= 0;
-		HRESETn_d <= 0;
+		RESET_d <= 0;
     end
     else begin											//        ______		 				
-        HRESETn_d <= HRESETn;							//       |		|
-		if(HRESETn == 1'b1 && HRESETn_d == 1'b0)		// __0___|	1	|___0____	: starting pulse
+        RESET_d <= RESET;							//       |		|
+		if(RESET == 1'b1 && RESET_d == 1'b0)		// __0___|	1	|___0____	: starting pulse
 			start <= 1'b1;
 		else
 			start <= 1'b0;
@@ -108,9 +108,9 @@ end
 //------------------------------------------------------------------------------------------------//
 // Finite state machine for reading RGB888 data from memory and creating hsync and vsync pulses --//
 //------------------------------------------------------------------------------------------------//
-always@(posedge HCLK, negedge HRESETn)
+always@(posedge CLK, negedge RESET)
 begin
-    if(~HRESETn) begin
+    if(~RESET) begin
         cstate <= ST_IDLE;
     end
     else begin
@@ -148,9 +148,9 @@ always @(*) begin
 end
 
 // counting data, column and row index for reading memory 
-always@(posedge HCLK, negedge HRESETn)
+always@(posedge CLK, negedge RESET)
 begin
-    if(~HRESETn) begin
+    if(~RESET) begin
 		data_count <= 0;
         row <= 0;
 		col <= 0;
