@@ -2,23 +2,23 @@
 /******************     Module for writing .bmp image    		 *************/
 /******************************************************************************/
 module image_write
-#(parameter MAX_WIDTH 	= 1080,						// Image width
-			MAX_HEIGHT 	= 1080,						// Image height
+#(parameter MAX_WIDTH 	= 1080,						// Image WIDTH
+			MAX_HEIGHT 	= 1080,						// Image HEIGHT
 			INFILE  = "output.bmp",				// Output image
 			BMP_HEADER_NUM = 54					// Header for bmp image
 )
 (
 	input CLK,									// Clock	
 	input RESET,	
-    input [31:0] width,
-	input [31:0] height,
-    input [10:0] row,
-    input [10:0] col,
-    input [7:0]  DATA_WRITE_R,					// Red 8-bit data (odd)
-    input [7:0]  DATA_WRITE_G,					// Green 8-bit data (odd)
-    input [7:0]  DATA_WRITE_B,					// Blue 8-bit data (odd)
+    input [11:0] WIDTH,
+	input [11:0] HEIGHT,
+    input [11:0] ROW,
+    input [11:0] COL,
+    input [7:0]  RED,					// Red 8-bit data (odd)
+    input [7:0]  GREEN,					// Green 8-bit data (odd)
+    input [7:0]  BLUE,					// Blue 8-bit data (odd)
 	output 	reg	 Write_Done,
-    output reg File_Closed = 0
+    output reg FILE_CLOSED = 0
 );	
 reg [7:0] BMP_header [0:BMP_HEADER_NUM - 1];	// BMP header
 reg [7:0] out_BMP    [0:MAX_WIDTH*MAX_HEIGHT*3 - 1];	// Temporary memory for image
@@ -84,19 +84,19 @@ initial begin
 end
 
 always @(*) begin
-    {BMP_header[21], BMP_header[20], BMP_header[19], BMP_header[18]} <= width;
-    {BMP_header[25], BMP_header[24], BMP_header[23], BMP_header[22]} <= height;
+    {BMP_header[21], BMP_header[20], BMP_header[19], BMP_header[18]} <= WIDTH;
+    {BMP_header[25], BMP_header[24], BMP_header[23], BMP_header[22]} <= HEIGHT;
 end
 
 // Writing RGB888 even and odd data to the temp memory
 always@(posedge CLK, negedge RESET) begin
     if(!RESET)
-        for(k=0;k<width*height*3;k=k+1)
+        for(k=0;k<WIDTH*HEIGHT*3;k=k+1)
             out_BMP[k] <= 0;
     else begin
-        out_BMP[width*3*(height-row-1)+3*col+2] <= DATA_WRITE_R;
-        out_BMP[width*3*(height-row-1)+3*col+1] <= DATA_WRITE_G;
-        out_BMP[width*3*(height-row-1)+3*col  ] <= DATA_WRITE_B;
+        out_BMP[WIDTH*3*(HEIGHT-ROW-1)+3*COL+2] <= RED;
+        out_BMP[WIDTH*3*(HEIGHT-ROW-1)+3*COL+1] <= GREEN;
+        out_BMP[WIDTH*3*(HEIGHT-ROW-1)+3*COL  ] <= BLUE;
     end
 end
 // data counting
@@ -107,7 +107,7 @@ begin
     else
 		data_count <= data_count + 1; // pixels counting for create done flag
 end
-assign done = (data_count == width*height-1)? 1'b1: 1'b0; // done flag once all pixels were processed
+assign done = (data_count == WIDTH*HEIGHT-1)? 1'b1: 1'b0; // done flag once all pixels were processed
 always@(posedge CLK, negedge RESET)
 begin
     if(~RESET) begin
@@ -129,7 +129,7 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
             $fwrite(fd, "%c", BMP_header[i][7:0]); // write the header
         end
         
-        for(i=0; i<width*height*3; i=i+3) begin
+        for(i=0; i<WIDTH*HEIGHT*3; i=i+3) begin
 		// write RBG
             $fwrite(fd, "%c", out_BMP[i  ][7:0]);
             $fwrite(fd, "%c", out_BMP[i+1][7:0]);
@@ -137,7 +137,7 @@ always@(Write_Done) begin // once the processing was done, bmp image will be cre
         end
         $fclose(fd);
         $display("Write file successfully!");
-        File_Closed = 1;
+        FILE_CLOSED = 1;
     end
 end
 endmodule
