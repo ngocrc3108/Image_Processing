@@ -6,16 +6,21 @@
 /*************************** **********************************************/
 /*************************** Definition file ******************************/
 /*************************** **********************************************/
-`define INPUTFILENAME		 "./images/input_header.hex" // Input file name
+`define INPUTFILENAME		 "./images/hex/480-360.hex" // Input file name
 `define OUTPUTFILENAME		 "./images/output.bmp"		// Output file name
 
 module tb_simulation;
+
+localparam BRIGHTNESS = 0;
+localparam GRAYSCALE = 1;
+localparam ROTATE = 2;
 
 //-------------------------------------------------
 // Internal Signals
 //-------------------------------------------------
 
 reg HCLK, HRESETn;
+reg [1:0] opcode;
 wire [7:0] data_R;
 wire [7:0] data_G;
 wire [7:0] data_B;
@@ -32,7 +37,8 @@ wire File_Closed;
 image_read 
 #(.INFILE(`INPUTFILENAME))
 	u_image_read
-( 
+(
+    .opcode(opcode), 
     .HCLK(HCLK),
     .HRESETn(HRESETn),
     .DATA_R(data_R),
@@ -70,6 +76,7 @@ end
 
 initial begin
     HRESETn     = 0;
+    opcode = GRAYSCALE;
     #25 HRESETn = 1;
 end
 

@@ -12,11 +12,12 @@ module image_read
 			INFILE  = "input.hex", 			// image file
 			VALUE= 100,							// value for Brightness operation
 			THRESHOLD= 90,						// Threshold value for Threshold operation
-			SIGN=1								// Sign value using for brightness operation
+			SIGN=0								// Sign value using for brightness operation
 													// SIGN = 0: Brightness subtraction
 													// SIGN = 1: Brightness addition
 )
 (
+	input [1:0] opcode,
 	input HCLK,									// clock					
 	input HRESETn,								// Reset (active low)
 	output reg [31:0] out_width,
@@ -32,6 +33,10 @@ module image_read
 //-------------------------------------------------
 // Internal Signals
 //-------------------------------------------------
+localparam BRIGHTNESS = 0;
+localparam GRAYSCALE = 1;
+localparam ROTATE = 2;
+
 localparam BMP_HEADER_NUM = 54;
 localparam sizeOfLengthReal = MAX_WIDTH*MAX_HEIGHT*3; 	// image data : 1179648 bytes: 512 * 768 *3 
 // local parameters for FSM
@@ -167,89 +172,70 @@ assign ctrl_done = (data_count >= width*height-1)? 1'b1: 1'b0; // done flag
 //-------------------------------------------------//
 //-------------  Image processing   ---------------//
 //-------------------------------------------------//
-always @(*) begin
-	DATA_R = 0;
-	DATA_G = 0;
-	DATA_B = 0;                                                                              
-	if(ctrl_data_run) begin	
-		`ifdef BRIGHTNESS_OPERATION	
-		/**************************************/		
-		/*		BRIGHTNESS ADDITION OPERATION */
-		/**************************************/
+always @(*)
+	if(opcode == BRIGHTNESS) begin
 		out_width = width;
 		out_height = height;
 		write_row = row;
 		write_col = col;
 		if(SIGN == 1) begin
-		// R0
-		tempR = org_R[width * row + col   ] + VALUE;
-		if (tempR > 255)
-			DATA_R = 255;
-		else
-			DATA_R = org_R[width * row + col   ] + VALUE;
-		// G0	
-		tempG = org_G[width * row + col   ] + VALUE;
-		if (tempG > 255)
-			DATA_G = 255;
-		else
-			DATA_G = org_G[width * row + col   ] + VALUE;	
-		// B
-		tempB = org_B[width * row + col   ] + VALUE;
-		if (tempB > 255)
-			DATA_B = 255;
-		else
-			DATA_B = org_B[width * row + col   ] + VALUE;
-	end
-	else begin
-	/**************************************/		
-	/*	BRIGHTNESS SUBTRACTION OPERATION */
-	/**************************************/
-		// R0
-		tempR = org_R[width * row + col   ] - VALUE;
-		if (tempR < 0)
-			DATA_R = 0;
-		else
-			DATA_R = org_R[width * row + col   ] - VALUE;	
-		// G0	
-		tempG = org_G[width * row + col   ] - VALUE;
-		if (tempG < 0)
-			DATA_G = 0;
-		else
-			DATA_G = org_G[width * row + col   ] - VALUE;		
-		// B0
-		tempB = org_B[width * row + col   ] - VALUE;
-		if (tempB < 0)
-			DATA_B = 0;
-		else
-			DATA_B = org_B[width * row + col   ] - VALUE;
-	 end
-		`endif
-	
-		/**************************************/		
-		/*		GRAYSCALE_OPERATION 		  */
-		/**************************************/
-		`ifdef GRAYSCALE_OPERATION	
-			out_width = width;
-			out_height = height;
-			write_row = row;
-			write_col = col;
-			value2 = (org_B[width * row + col] + org_R[width * row + col] + org_G[width * row + col]) / 3;
-			DATA_R = value2;
-			DATA_G = value2;
-			DATA_B = value2;	
-		`endif
+			tempR = org_R[width*row + col] + VALUE;
+			if (tempR > 255)
+				DATA_R = 255;
+			else
+				DATA_R = org_R[width*row + col] + VALUE;
 
-		`ifdef ROTATE	
-			out_width = height;
-			out_height = width;
-			write_row = col;
-			write_col = height - row;
-			DATA_R = org_R[width * row + col];
-			DATA_G = org_G[width * row + col];
-			DATA_B = org_B[width * row + col];	
-		`endif
+			tempG = org_G[width*row + col] + VALUE;
+			if (tempG > 255)
+				DATA_G = 255;
+			else
+				DATA_G = org_G[width*row + col] + VALUE;	
+
+			tempB = org_B[width*row + col] + VALUE;
+			if (tempB > 255)
+				DATA_B = 255;
+			else
+				DATA_B = org_B[width*row + col] + VALUE;
+		end
+		else begin
+			tempR = org_R[width*row + col] - VALUE;
+			if (tempR < 0)
+				DATA_R = 0;
+			else
+				DATA_R = org_R[width*row + col] - VALUE;	
+
+			tempG = org_G[width*row + col   ] - VALUE;
+			if (tempG < 0)
+				DATA_G = 0;
+			else
+				DATA_G = org_G[width*row + col   ] - VALUE;	
+					
+			tempB = org_B[width*row + col   ] - VALUE;
+			if (tempB < 0)
+				DATA_B = 0;
+			else
+				DATA_B = org_B[width*row + col   ] - VALUE;
+		end
 	end
-end
+	else if(opcode == GRAYSCALE) begin
+		out_width = width;
+		out_height = height;
+		write_row = row;
+		write_col = col;
+		value2 = (org_B[width*row + col] + org_R[width*row + col] + org_G[width*row + col]) / 3;
+		DATA_R = value2;
+		DATA_G = value2;
+		DATA_B = value2;
+	end
+	else if(opcode == ROTATE) begin
+		out_width = height;
+		out_height = width;
+		write_row = col;
+		write_col = height - row;
+		DATA_R = org_R[width*row + col];
+		DATA_G = org_G[width*row + col];
+		DATA_B = org_B[width*row + col];	
+	end
 endmodule
 
 
